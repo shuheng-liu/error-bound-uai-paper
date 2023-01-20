@@ -1,0 +1,253 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\allowdisplaybreaks
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage[a4paper, total={7in, 9in}]{geometry}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{soul}
+\usepackage[sorting=none]{biblatex}
+\usepackage{hyperref}
+
+
+\addbibresource{references.bib}
+
+\newcommand{\vect}[1]{\boldsymbol{\mathbf{#1}}}
+% \newcommand{\eq}[1]{Eq. \ref{#1}}
+\newcommand{\px}[1]{\cfrac{\partial #1}{\partial x}}
+\newcommand{\py}[1]{\cfrac{\partial #1}{\partial y}}
+\newcommand{\dx}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} x}}
+\newcommand{\dy}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} y}}
+\newcommand{\dt}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} t}}
+\newcommand{\ds}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} s}}
+\newcommand{\dnt}[2]{\cfrac{\mathrm{d}^{#1} #2}{\mathrm{d} t^{#1}}}
+\newcommand{\Err}{\mathcal{E}}
+\newcommand{\Bound}{\mathcal{B}}
+\newcommand{\Loss}{\mathrm{Loss}}
+\newcommand{\Net}{\mathrm{Net}}
+\renewcommand{\L}{\mathcal{L}}
+
+
+\title{Residual-Based Error Bound for Physics-Informed Neural Networks}
+\author{Shuheng Liu, Xiyue Huang, Pavlos Protopapas}
+\date{\today}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+    Neural networks are universal approximators and are studied for their use in solving differential equations.
+    However, a major criticism lies in that there lacks estimation of error bounds for the obtained solutions.
+    This paper proposes a technique to rigorously evaluate the error bound of Physics-Informed Neural Networks (PINNs) on common classes of ODEs and PDEs.
+    The error bound is based purely on equation structure and equation residuals, and does not depend on assumptions of how well the networks are trained.
+    The technique evaluates the error bound in an efficient manner, and can be further improved to provide tighter bounds at the cost of longer run time.
+\end{abstract}
+
+\section{Introduction}
+    TODO
+
+\section{Literature Review}
+    TODO
+
+\section{Existing Work}
+    TODO
+\section{Symbols and Notations}
+
+\subsection{Setup}
+    Differnetial equations discussed in this work are posed as equations of the unknown function $v$:
+    \begin{equation*}
+        \mathcal{D} v = f
+    \end{equation*}
+    where $\mathcal{D}$ is some (possible nonlinear) differential operator and $f$ is some forcing function.
+
+    Unlike the exact solution $v(\cdot)$, a neural network solution $u(\cdot)$ does not strictly satisify the equation.
+    Instead, it incurs an additional residual term $r$, which we aim to minimize, to the equation, 
+    \begin{equation*}
+        \mathcal{D} u = f + r.
+    \end{equation*}
+
+    For ODEs, $v(\cdot)$, $u(\cdot)$, and $r(\cdot)$ are considered as a function of the free variable time $t$.
+    For PDEs, $v(\cdot, \cdot)$, $u(\cdot, \cdot)$, and $r(\cdot, \cdot)$ are considered as a function of free spatial coordinates $(x, y)$.
+    We limit our reasoning to 2-dimensional PDEs in this work.
+
+    In cases where there are multiple unknown functions, we use vectors $\vect{v}$, $\vect{u}$, and $\vect{r}$ instead of the scalar notations $v$, $u$, and $r$.
+
+\subsection{Loss Function}
+    The loss function of the network solution is defined as 
+    \begin{align}
+        \Loss{}(u) &:= \frac{1}{|I|} \int_{I} \|r(t)\|^2 \mathrm{d}t 
+            = \frac{1}{|I|} \int_{I} \|\mathcal{D}u(t) - f(t)\|^2 \mathrm{d}t \\
+        \text{or,} \quad 
+        \Loss{}(u) &:= \frac{1}{|\Omega|} \int_{\Omega} \|r(x, y)\|^2 \mathrm{d}x\mathrm{d}y
+            = \frac{1}{|\Omega|} \int_{\Omega} \|\mathcal{D}u(x, y) - f(x, y)\|^2 \mathrm{d}x\mathrm{d}y
+    \end{align}
+    where $I$ is the temporal domain for ODEs and $\Omega$ is the spatial domain for PDEs.
+
+\subsection{Initial and Boundary Conditions}
+    In order for a neural network to satisify initial or boundary conditions, we apply a technique named parametrization [CITATION HERE]. 
+    As an intuitive example, $u(t) = (1 - e^{-t}) \Net(t) + v(0)$ guarantees that $u(t)$ satisifies the initial condition $u(0)=v(0)$. 
+    The parametrization is more complicated for higher-order ODEs and most PDEs. We explain the parameterization used for experiments in Section \ref{section:experiments}. 
+    For now, we assume all initial and boundary conditions are exactly satisfied.
+
+\subsection{Error and Error Bound}
+    The error of a neural network solution is defined as 
+    \begin{equation}
+        \Err_u= u - v
+    \end{equation}
+    We are interested in \textit{bounding} the error with a scalar function $\Bound$ such that
+    \begin{align}
+        \|u(t) - v(t)\| &\leq \Bound(t) \\
+        \text{or, } \quad \|u(x, y) - v(x, y)\| &\leq \Bound(x, y)
+    \end{align}
+    where $\|u - v\|$ is referred to as the \textit{absolute error}.
+    If $\Bound$ takes on the same value $B \in \mathbb{R}^{+}$ over the domain, it can be replaced with a constant $B$.
+
+    Notice that multiple bounds $\Bound$ exist for the same network solution $u$.
+    Our work uncovers several bounds in descending order of tightness, $\Bound^{(1)}(t) \leq \dots \leq \Bound^{(n)}(t) \leq B$. Tighter bounds will incur higher computational cost, and the (loosest) constant bound $B$ can be computed in the fastest way.
+
+
+\section{Error Bound for ODEs}
+In this section, we consider both linear and nonlinear ODEs over the temporal domain $I=[0, T]$. 
+Initial conditions are imposed on $v^{(k)}(t=0),\, k = 0, \dots, (n - 1)$, where $n$ is the order of the ODE and $v^{(k)} := \cfrac{\mathrm{d^k}}{\mathrm{d}t^k}v$ is the $k$-th order derivative of $v$.
+
+\subsection{Linear ODEs}
+\subsubsection{Integrating Factor Technique}
+\subsubsection{Single Linear ODE with Constant Coefficients}\label{section:single-linear-ode-with-constant-coefficients}
+\subsubsection{System of Linear ODEs with Constant Coefficients}
+\subsubsection{Linear ODEs with Nonconstant Coefficients}
+
+\subsection{Nonlinear ODEs}
+    Nonlinear ODEs are hard to solve in general. 
+    In this work, we only deal with nonlinear terms of the form $\varepsilon v^k(t)$, where $\varepsilon \in \mathbb{R}$ is a small number. 
+    Ideally, $|\varepsilon| \ll 1$. 
+    With the perturbation technique, we obtain a family of solutions $v(t;\varepsilon)$ parameterized by $\varepsilon$ at the cost of solving a (countable) collection of equations. 
+    As explained below in section \ref{section:perturbation-theory}, we train finitely many networks, each approximately solves an equation in the collection.
+
+\subsubsection{Perturbation Theory} \label{section:perturbation-theory}
+    Consider the nonlinear ODE with constant coefficients
+    \begin{equation} \label{eq:nonlinear-ode-master}
+        \L v(t) + \varepsilon v^k(t) = f(t),
+    \end{equation}
+    where $\L$ is a linear differential operator and initial conditions are specified for the system at time $t=0$. 
+    Notice that each $\varepsilon \in \mathbb{R}$ corresponds to a solution $v(t; \varepsilon)$. 
+    We expand the solution $v(t; \varepsilon)$ in terms of $\varepsilon$
+    \begin{equation} \label{eq:nonlinear-solution-expansion}
+        v(t; \varepsilon) = \sum_{j=0}^{\infty} \varepsilon^j v_j(t) = v_0(t) + \varepsilon v_1(t) + \varepsilon^2 v_2(t) + \dots.
+    \end{equation}
+    For $\varepsilon = 0$, Eq. \ref{eq:nonlinear-ode-master} is reduced to a linear ODE and Eq. \ref{eq:nonlinear-solution-expansion} is reduced to $v_0(t)$. Therefore, $v_0(t)$ is the solution to the linear equation. 
+
+    By substituting Eq. \ref{eq:nonlinear-solution-expansion} into Eq. \ref{eq:nonlinear-ode-master}, there is
+    \begin{align}
+        \L \sum_{j=0}^{\infty} \varepsilon^j v_j + \varepsilon \left(\sum_{j=0}^{\infty} \varepsilon^j v_j\right)^k &= f \\
+        % \sum_{j=0}^{\infty} \varepsilon^j \L v_j + \varepsilon \left(\sum_{j=0}^{\infty} \varepsilon^j v_j\right)^k &= f \\
+        \sum_{j=0}^{\infty} \varepsilon^j \L v_j + \sum_{j=0}^{\infty} \varepsilon^{j+1} \sum_{\substack{j_1+\dots+j_k = j\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k} &= f \\ 
+        \L v_0 + \sum_{j=1}^{\infty} \varepsilon^j \left(\L v_j + \sum_{\substack{j_1+\dots+j_k = j - 1\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k}\right)&= f \label{eq:nonlinear-equation-expansion} 
+    \end{align}
+    In order for Eq. \ref{eq:nonlinear-equation-expansion} to hold true for all $\varepsilon$, the coefficients for each $\varepsilon^j$ must match on both sides of Eq. \ref{eq:nonlinear-equation-expansion}.
+
+    Comparing the coefficients for $\varepsilon^0$, $\varepsilon^1$, $\varepsilon^2$, $\varepsilon^3$, \dots, on both sides of Eq. \ref{eq:nonlinear-equation-expansion}, there is
+    \begin{alignat}{4}
+        &\L v_0 &&= f \label{eq:expansion-epsilon-0}\\
+        &\L v_1 + v_0^k &&= 0 \label{eq:expansion-epsilon-1}\\
+        &\L v_2 + k v_0^{k-1}v_1 &&= 0 \label{eq:expansion-epsilon-2} \\
+        &\L v_3 + \frac{1}{2}k(k-1)v_0^{k-2}v_1^2 + k v_0^{k-1}v_2 &&= 0 \label{eq:expansion-epsilon-3}\\
+        &&\vdots &\nonumber
+    \end{alignat}
+
+    The above system can be solved in a \textit{sequential} manner, either using neural networks or analytical methods,
+    \begin{enumerate}
+        \item Eq. \ref{eq:expansion-epsilon-0} is linear in $v_0$ and can be solved first in a relatively easy manner. 
+        \item After obtaining $v_0$, Eq. \ref{eq:expansion-epsilon-1} is linear in $v_1$ and can again be solved for $v_1$. 
+        \item Similarly, with $v_0$ and $v_1$ known, Eq. \ref{eq:expansion-epsilon-2} becomes linear in $v_2$ and can be solved for $v_2$.
+        \item The process can be repeated for Eq. \ref{eq:expansion-epsilon-3} and beyond. Only a linear ODE is solved each time.
+    \end{enumerate}
+
+    To solve the system with PINNs, we approximate exact solutions $\left\{v_j(t)\right\}_{j=1}^{\infty}$ with neural network solutions $\left\{u_j(t)\right\}_{j=0}^{J}$ trained sequentially on Eq. \ref{eq:expansion-epsilon-0}, Eq. \ref{eq:expansion-epsilon-1}, and beyond. 
+    In practice, we only consider components up to order $J$ to avoid the infinity in the expansion \ref{eq:nonlinear-solution-expansion}. 
+    Ideally, $J$ should be large enough so that higher order residuals in expansion \ref{eq:nonlinear-solution-expansion} can be neglected.
+
+    After obtaining $\left\{u_j(t)\right\}_{j=0}^{J}$, we can reconstruct the solution $u(t;\varepsilon)$ to the original nonlinear equation \ref{eq:nonlinear-ode-master} for varying $\varepsilon$:
+    \begin{equation}\label{eq:nonlinear-network-expansion}
+        u(t;\varepsilon) = \sum_{j=0}^{J} \varepsilon^j u_j(t) = u_0(t) + \varepsilon u_1(t) + \dots + \varepsilon^J u_J(t).
+    \end{equation}
+
+\subsubsection{Expansion of Bounds}
+Comparing the exact solution \ref{eq:nonlinear-solution-expansion} against the network solution \ref{eq:nonlinear-network-expansion}, the absolute error is given by 
+\begin{equation}
+   |\Err_u(t; \varepsilon)| = \Big|u(t; \varepsilon) - v(t; \varepsilon)\Big| = \left|\sum_{j=0}^{J} \varepsilon^{j} \Big(u_j(t) - v_j(t)\Big) - \sum_{j=J+1}^{\infty} \varepsilon^j v_j(t)\right|
+\end{equation}
+
+By triangle inequality, there is 
+\begin{align}
+   \Big|\Err_u(t; \varepsilon)\Big| &\leq \sum_{j=0}^{J} \Big|\Err_{uj}(t)\Big||\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|
+\end{align}
+where $\Err_{uj}(t) := u_j(t) - v_j(t)$ is the \textit{component error} between $u_j(t)$ and $v_j(t)$.
+Let $\Bound_{j}$ denote the \textit{bound component} such that $|\Err_{uj}| \leq \Bound_j(t)$, there is 
+\begin{equation}
+   \Big|\Err_u(t; \varepsilon)\Big| \leq \sum_{j=0}^{J} \Bound_j(t)\,|\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|
+\end{equation}
+Assuming $J$ is large enough such that the residual $\displaystyle \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|$ is negligible, an error bound is given by
+\begin{equation}
+    \Bound(t; \varepsilon) := \sum_{j=0}^{J} \Bound_j(t)\,|\varepsilon|^j,
+\end{equation} 
+where each bound component $\Bound_j$ can be evaluated using the techinque discussed in Section \ref{section:single-linear-ode-with-constant-coefficients}. A detailed example is given in Section \ref{section:experiment-duffing}.
+
+\section{Error Bound for PDEs}
+In this section, we consider PDEs defined on a 2-dimensional spatial domain $\Omega$, although the method can be easily extended to higher-order dimensions. We also limit our discussion to first-order linear PDEs. However, the similar techinique can be used for other scenarios where the method of characteristics can be applied.
+
+\subsection{First-Order Linear PDEs}
+Consider a first-order linear PDE defined on some $\Omega$ in the $(x, y)$-plane,
+\begin{equation}\label{eq:pde-master}
+    a(x, y) \px{u} + b(x, y) \py{u} + c(x, y)u = f(x, y)
+\end{equation}
+with Dirichlet boundary constraints defined on $\Gamma \subset \partial \Omega$,
+\begin{equation}\label{eq:pde-bc-master}
+    u\Big|_{(x, y) \in \Gamma} = g(x, y),
+\end{equation}
+where $a$, $b$, $c$, and $f$ are locally Lipschitz on $\Omega$. For reference, continous differentiability implies local Lipschitzness, which implies continuity.
+
+We partition the domain into infintely many characteristic curves $\ell$, each passing through a point $(x_0, y_0) \in \Gamma$. The resulting characteristic curve is an integral curve parameterized by
+\begin{equation} \label{eq:parameter-eq-differential}
+    \ell: \begin{cases*}
+        \ds{x} = a(x, y) \\
+        \ds{y} = b(x, y) 
+    \end{cases*} 
+    \quad 
+    \text{s.t.} 
+    \quad
+    \begin{aligned}
+        x\big|_{s=0} &= x_0 \\
+        y\big|_{s=0} &= y_0
+    \end{aligned}
+\end{equation}
+Notice that the system \ref{eq:parameter-eq-differential} can be nonlinear in general. 
+However, as discussed below, system \ref{eq:parameter-eq-differential} needs not necessarily be solved for a loose error bound to be evluated, as long as the original problem \ref{eq:pde-master} is \textit{well posed}. 
+Still, knowing the exact characteristic curves represented by \ref{eq:parameter-eq-differential} leads to a tighter bound.
+
+\subsection{Hyperbolic PDEs}
+TODO
+
+\section{Relevant Experiments}\label{section:experiments}
+TODO
+
+\subsection{Higher Dimensional System with Constant Coefficents} \label{section:high-dimension}
+TODO
+
+\subsection{Linear ODE System with Nonconstant Coefficients -- Nonharmonic Oscillator} \label{section:experiment-nonharmonic-oscillator}
+TODO
+
+\subsection{Nonlinear ODE -- Duffing Equation} \label{section:experiment-duffing}
+TODO
+
+\subsection{Linear PDE System with Nonconstant Coefficients } \label{section:experiment-attractor}
+TODO
+
+\section{Future Work}
+TODO
+
+\end{document}
