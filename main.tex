@@ -10,6 +10,8 @@
 \usepackage{soul}
 \usepackage[sorting=none]{biblatex}
 \usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 
 \addbibresource{references.bib}
@@ -23,11 +25,16 @@
 \newcommand{\dt}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} t}}
 \newcommand{\ds}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} s}}
 \newcommand{\dnt}[2]{\cfrac{\mathrm{d}^{#1} #2}{\mathrm{d} t^{#1}}}
-\newcommand{\Err}{\mathcal{E}}
+% \newcommand{\Err}{\mathcal{E}}
+\newcommand{\Err}{e}
 \newcommand{\Bound}{\mathcal{B}}
 \newcommand{\Loss}{\mathrm{Loss}}
 \newcommand{\Net}{\mathrm{Net}}
 \renewcommand{\L}{\mathcal{L}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\Int}[1]{e^{#1 t} \int_{0}^{t} e^{- #1 \tau}\mathrm{d}\tau}
+\newcommand{\Intt}{\int_{0}^{t}\mathrm{d}\tau}
+\renewcommand{\Re}[1]{\mathcal{R}e\left(#1\right)}
 
 
 \title{Residual-Based Error Bound for Physics-Informed Neural Networks}
@@ -88,7 +95,7 @@
     \end{align}
     where $I$ is the temporal domain for ODEs and $\Omega$ is the spatial domain for PDEs.
 
-\subsection{Initial and Boundary Conditions}
+\subsection{Initial and Boundary Conditions}\label{section:initial-and-boundary-conditions}
     In order for a neural network to satisify initial or boundary conditions, we apply a technique named parametrization [CITATION HERE]. 
     As an intuitive example, $u(t) = (1 - e^{-t}) \Net(t) + v(0)$ guarantees that $u(t)$ satisifies the initial condition $u(0)=v(0)$. 
     The parametrization is more complicated for higher-order ODEs and most PDEs. We explain the parameterization used for experiments in Section \ref{section:experiments}. 
@@ -96,7 +103,7 @@
 
 \subsection{Error and Error Bound}
     The error of a neural network solution is defined as 
-    \begin{equation}
+    \begin{equation}\label{eq:err-definition-master}
         \Err_u= u - v
     \end{equation}
     We are interested in \textit{bounding} the error with a scalar function $\Bound$ such that
@@ -112,14 +119,100 @@
 
 
 \section{Error Bound for ODEs}
-In this section, we consider both linear and nonlinear ODEs over the temporal domain $I=[0, T]$. 
-Initial conditions are imposed on $v^{(k)}(t=0),\, k = 0, \dots, (n - 1)$, where $n$ is the order of the ODE and $v^{(k)} := \cfrac{\mathrm{d^k}}{\mathrm{d}t^k}v$ is the $k$-th order derivative of $v$.
+    In this section, we consider both linear and nonlinear ODEs over the temporal domain $I=[0, T]$. 
+    Initial conditions are imposed on $\dnt{k}v(t=0)$ for $k = 0, \dots, (n - 1)$, where $n$ is the order of the ODE.
 
-\subsection{Linear ODEs}
+\subsection{Error Bound for Linear ODEs}
+    Consider the linear ODE $\L v(t) = f(t)$, where $\L$ is a linear differential operator. 
+    Its neural-network solution $u$ satisifies $\L u(t) = f(t) + r(t)$. 
+    With the definition of error in Eq. \ref{eq:err-definition-master}, there is
+    \begin{equation} \label{eq:linear-error-master}
+        \L \Err_u(t) = r(t).
+    \end{equation}
+
+    With the assumption in Section \ref{section:initial-and-boundary-conditions} that $u$ satisifies the initial conditions at $t=0$, there is
+    \begin{equation} \label{eq:linear-error-initial-condition}
+        \Err_u(0) = 0, \quad \dt{}{}\Err_u(0) = 0, \quad \dnt{2}{}\Err_u(0) = 0, \quad \dots 
+    \end{equation}
+
+    Since initial conditions \ref{eq:linear-error-initial-condition} are known, there must exist a unique inverse transform to $\L$.  Applying the inverse transform $\L^{-1}$ on both sides of Eq. \ref{eq:linear-error-master}, there is 
+    \begin{equation}\label{eq:linear-error-inverse-master}
+        \Err_u(t) = \L^{-1} r(t).
+    \end{equation}
+    Hence, bounding the absolute error $\left|\Err_u\right|$ is equivalent to bounding $\left|\L^{-1} r\right|$. 
+    Notice that only (a) the equation structure $\L$ and (b) the residual information $r$ are relevant to estimating the error bound. 
+    All other factors, including parameters of the neural network $u$, forcing function $f$, and initial conditions, do not affect the estimation at all.
+
 \subsubsection{Integrating Factor Technique}
+    TODO: explain the goal of the next 2 subsections
 \subsubsection{Single Linear ODE with Constant Coefficients}\label{section:single-linear-ode-with-constant-coefficients}
-\subsubsection{System of Linear ODEs with Constant Coefficients}
+    Consider the case where $\displaystyle \L = \dnt{n}{} + \sum_{j=0}^{n - 1} a_j \dnt{j}{}$ consists of only constant coefficients $a_0, a_1, \dots, \in \mathbb{R}$.
+    Its characteristic equation is defined as, and can be factorized into
+    \begin{equation} \label{eq:single-linear-ode-characteristic-polynomial-factorization}
+        \lambda^n + a_{n-1}\lambda^{n-1} + \dots + a_0 = \prod_{j=1}^{n}(\lambda - \lambda_j),
+    \end{equation}
+    where $\lambda_1, \dots, \lambda_n \in \mathbb{C}$ are the characteristic roots. 
+
+    It can be shown that, for a semi-stable system ($\Re{\lambda_j} \leq 0$ for all $\lambda_j$), an error bound can be formulated as
+    \begin{equation} \label{eq:linear-ode-const-loose-bound}
+        \left|\Err_u(t)\right| \leq \Bound(t) := C_{\lambda_{1:n}}\, R_{\max}\, t^{Z},
+    \end{equation}
+    where $0\leq Z \leq n$ is the number of $\lambda_j$ whose real part is $0$, $\displaystyle C_{\lambda_{1:n}} := \frac{1}{Z!}\prod_{j=1; \lambda_j\neq 0}^{n} \frac{1}{\Re{-\lambda_j}}$ is a constant coefficient, and $\displaystyle R_{\max}:=\max_{t\in I} |r(t)|$ is the maximum absolute residual. 
+    For applications where only the order of error is concerned, knowing bound \ref{eq:linear-ode-const-loose-bound} is sufficient to estimate the error bound. See Alg. \ref{alg:single-linear-ode-constant-coeff-loose} for reference.
+
+    \begin{algorithm}
+        \caption{Loose Error Bound Estimation for Single Linear ODE with Constant Coefficients}\label{alg:single-linear-ode-constant-coeff-loose}
+        \textbf{Input:} Coefficients $\left\{a_j\right\}_{j=0}^{n-1}$ for operator $\L$, residual information $r(\cdot)$, domain of interest $I = [0, T]$, a sequence of time points $\left\{t_k\right\}_{k=1}^{K}$ where error bound is to be evaluated.\\
+        \textbf{Output:} Error bound at given time points $\left\{\Bound(t_k)\right\}_{k=1}^{K}$.
+
+        \begin{algorithmic}
+            \Require $t_k \in I$ for all $k$.
+            \Ensure $\left|\Err_u(t_k)\right| \leq \Bound(t_k)$ for all $k$. 
+            \vspace{0.5em}
+            \State $\displaystyle R_{\max} \gets \max_{\tau \in I} |r(\tau)|$ \Comment{Use linspace with mini-steps}
+            \State $\{\lambda_1, \dots, \lambda_n\} \gets$ numerical roots of $\lambda^n+a_{n-1}\lambda^{n-1}+\dots+a_0=0$ \Comment{Jenkins–Traub algorithm \cite{jenkins1970three}}
+            \State $Z \gets 0$
+            \State $C \gets 1$
+            \For{$j\gets 1\dots n$}
+                \If{$\Re{\lambda_j} = 0$}
+                    \State $Z \gets Z + 1$
+                \Else
+                    \State $C \gets C / \Re{-\lambda_j}$
+                \EndIf
+            \EndFor
+            \State $C_{\lambda_{1:n}}\gets C / Z!$
+            \For{$k \gets 1 \dots K$}
+            \State $\Bound(t_k) \gets C_{\lambda_{1:n}}\, R_{\max}\, t_k^{Z} $
+            \EndFor
+            \State \textbf{return} $\left\{\Bound(t_k)\right\}_{k=1}^{K}$
+        \end{algorithmic}
+    \end{algorithm}
+
+    One problem with Eq. \ref{eq:linear-ode-const-loose-bound} and Alg. \ref{alg:single-linear-ode-constant-coeff-loose} is that it assumes $\Re{\lambda_j} \leq 0$ for all characteristic roots $\lambda_j$. 
+    This is true only for stable ODEs. 
+    To address this issue, we propose an alternative error bound estimation algorithm.
+
+    Notice that bounds of $\Err_u$ in Eq. \ref{eq:linear-error-inverse-master} can be estimated if the inverse operator $\L^{-1}$ is known. 
+    In the case where $\L$ only consists of constant coefficients, we can factorize its characteristic equation as Eq. \ref{eq:single-linear-ode-characteristic-polynomial-factorization}.
+    By defining operator $\I_{\lambda}$ as 
+    \begin{equation}
+        \I_\lambda \phi(t) := e^{{\lambda} t} \int_{0}^{t} e^{-{\lambda} \tau} \phi(\tau) \mathrm{d}\tau,
+    \end{equation}
+    it can be shown that $I_\alpha$ and $I_\beta$ are commutative for any $\alpha, \beta \in \mathbb{C}$ and that
+    \begin{equation}
+        \L^{-1} = \I_{\lambda_{n}} \circ \I_{\lambda_{n-1}} \circ \dots \circ \I_{\lambda_1}.
+    \end{equation}
+    
+    We show in appendix \ref{appendix:inequality-proof-inverse-operator-chain} that 
+    \begin{equation} \label{eq:single-linear-ode-inverse-operator-inequality}
+        |\Err_u(t)| \leq \Bound(t) := \left(\I_{\Re{\lambda_{n}}} \circ \I_{\Re{\lambda_{n-1}}} \circ \dots \circ \I_{\Re{\lambda_1}}\right) |r(t)|
+    \end{equation}
+
+\subsubsection{System of Linear ODEs with Constant Coefficients} \label{section:system-of-linear-odes-with-constant-coefficients}
+    TODO
+
 \subsubsection{Linear ODEs with Nonconstant Coefficients}
+    TODO
 
 \subsection{Nonlinear ODEs}
     Nonlinear ODEs are hard to solve in general. 
@@ -177,77 +270,119 @@ Initial conditions are imposed on $v^{(k)}(t=0),\, k = 0, \dots, (n - 1)$, where
     \end{equation}
 
 \subsubsection{Expansion of Bounds}
-Comparing the exact solution \ref{eq:nonlinear-solution-expansion} against the network solution \ref{eq:nonlinear-network-expansion}, the absolute error is given by 
-\begin{equation}
-   |\Err_u(t; \varepsilon)| = \Big|u(t; \varepsilon) - v(t; \varepsilon)\Big| = \left|\sum_{j=0}^{J} \varepsilon^{j} \Big(u_j(t) - v_j(t)\Big) - \sum_{j=J+1}^{\infty} \varepsilon^j v_j(t)\right|
-\end{equation}
+    Comparing the exact solution \ref{eq:nonlinear-solution-expansion} against the network solution \ref{eq:nonlinear-network-expansion}, the absolute error is given by 
+    \begin{equation}
+    |\Err_u(t; \varepsilon)| = \Big|u(t; \varepsilon) - v(t; \varepsilon)\Big| = \left|\sum_{j=0}^{J} \varepsilon^{j} \Big(u_j(t) - v_j(t)\Big) - \sum_{j=J+1}^{\infty} \varepsilon^j v_j(t)\right|
+    \end{equation}
 
-By triangle inequality, there is 
-\begin{align}
-   \Big|\Err_u(t; \varepsilon)\Big| &\leq \sum_{j=0}^{J} \Big|\Err_{uj}(t)\Big||\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|
-\end{align}
-where $\Err_{uj}(t) := u_j(t) - v_j(t)$ is the \textit{component error} between $u_j(t)$ and $v_j(t)$.
-Let $\Bound_{j}$ denote the \textit{bound component} such that $|\Err_{uj}| \leq \Bound_j(t)$, there is 
-\begin{equation}
-   \Big|\Err_u(t; \varepsilon)\Big| \leq \sum_{j=0}^{J} \Bound_j(t)\,|\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|
-\end{equation}
-Assuming $J$ is large enough such that the residual $\displaystyle \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|$ is negligible, an error bound is given by
-\begin{equation}
-    \Bound(t; \varepsilon) := \sum_{j=0}^{J} \Bound_j(t)\,|\varepsilon|^j,
-\end{equation} 
-where each bound component $\Bound_j$ can be evaluated using the techinque discussed in Section \ref{section:single-linear-ode-with-constant-coefficients}. A detailed example is given in Section \ref{section:experiment-duffing}.
+    By triangle inequality, there is 
+    \begin{align}
+    \Big|\Err_u(t; \varepsilon)\Big| &\leq \sum_{j=0}^{J} \Big|\Err_{uj}(t)\Big||\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|
+    \end{align}
+    where $\Err_{uj}(t) := u_j(t) - v_j(t)$ is the \textit{component error} between $u_j(t)$ and $v_j(t)$.
+    Let $\Bound_{j}$ denote the \textit{bound component} such that $|\Err_{uj}| \leq \Bound_j(t)$, there is 
+    \begin{equation}
+    \Big|\Err_u(t; \varepsilon)\Big| \leq \sum_{j=0}^{J} \Bound_j(t)\,|\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|
+    \end{equation}
+    Assuming $J$ is large enough such that the residual $\displaystyle \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|$ is negligible, an error bound is given by
+    \begin{equation}
+        \Bound(t; \varepsilon) := \sum_{j=0}^{J} \Bound_j(t)\,|\varepsilon|^j,
+    \end{equation} 
+    where each bound component $\Bound_j$ can be evaluated using the techinque discussed in Section \ref{section:single-linear-ode-with-constant-coefficients}. A detailed example is given in Section \ref{section:experiment-duffing}.
 
 \section{Error Bound for PDEs}
-In this section, we consider PDEs defined on a 2-dimensional spatial domain $\Omega$, although the method can be easily extended to higher-order dimensions. We also limit our discussion to first-order linear PDEs. However, the similar techinique can be used for other scenarios where the method of characteristics can be applied.
+    In this section, we consider PDEs defined on a 2-dimensional spatial domain $\Omega$, although the method can be easily extended to higher-order dimensions. We also limit our discussion to first-order linear PDEs. However, the similar techinique can be used for other scenarios where the method of characteristics can be applied.
 
 \subsection{First-Order Linear PDEs}
-Consider a first-order linear PDE defined on some $\Omega$ in the $(x, y)$-plane,
-\begin{equation}\label{eq:pde-master}
-    a(x, y) \px{u} + b(x, y) \py{u} + c(x, y)u = f(x, y)
-\end{equation}
-with Dirichlet boundary constraints defined on $\Gamma \subset \partial \Omega$,
-\begin{equation}\label{eq:pde-bc-master}
-    u\Big|_{(x, y) \in \Gamma} = g(x, y),
-\end{equation}
-where $a$, $b$, $c$, and $f$ are locally Lipschitz on $\Omega$. For reference, continous differentiability implies local Lipschitzness, which implies continuity.
+    Consider a first-order linear PDE defined on some $\Omega$ in the $(x, y)$-plane,
+    \begin{equation}\label{eq:pde-master}
+        a(x, y) \px{u} + b(x, y) \py{u} + c(x, y)u = f(x, y)
+    \end{equation}
+    with Dirichlet boundary constraints defined on $\Gamma \subset \partial \Omega$,
+    \begin{equation}\label{eq:pde-bc-master}
+        u\Big|_{(x, y) \in \Gamma} = g(x, y),
+    \end{equation}
+    where $a$, $b$, $c$, and $f$ are locally Lipschitz on $\Omega$. For reference, continous differentiability implies local Lipschitzness, which implies continuity.
 
-We partition the domain into infintely many characteristic curves $\ell$, each passing through a point $(x_0, y_0) \in \Gamma$. The resulting characteristic curve is an integral curve parameterized by
-\begin{equation} \label{eq:parameter-eq-differential}
-    \ell: \begin{cases*}
-        \ds{x} = a(x, y) \\
-        \ds{y} = b(x, y) 
-    \end{cases*} 
-    \quad 
-    \text{s.t.} 
-    \quad
-    \begin{aligned}
-        x\big|_{s=0} &= x_0 \\
-        y\big|_{s=0} &= y_0
-    \end{aligned}
-\end{equation}
-Notice that the system \ref{eq:parameter-eq-differential} can be nonlinear in general. 
-However, as discussed below, system \ref{eq:parameter-eq-differential} needs not necessarily be solved for a loose error bound to be evluated, as long as the original problem \ref{eq:pde-master} is \textit{well posed}. 
-Still, knowing the exact characteristic curves represented by \ref{eq:parameter-eq-differential} leads to a tighter bound.
+    We partition the domain into infintely many characteristic curves $\ell$, each passing through a point $(x_0, y_0) \in \Gamma$. The resulting characteristic curve is an integral curve parameterized by
+    \begin{equation} \label{eq:parameter-eq-differential}
+        \ell: \begin{cases*}
+            \ds{x} = a(x, y) \\
+            \ds{y} = b(x, y) 
+        \end{cases*} 
+        \quad 
+        \text{s.t.} 
+        \quad
+        \begin{aligned}
+            x\big|_{s=0} &= x_0 \\
+            y\big|_{s=0} &= y_0
+        \end{aligned}
+    \end{equation}
+    Notice that the system \ref{eq:parameter-eq-differential} can be nonlinear in general. 
+    However, as discussed below, system \ref{eq:parameter-eq-differential} needs not necessarily be solved for a loose error bound to be evluated, as long as the original problem \ref{eq:pde-master} is \textit{well posed}. 
+    Still, knowing the exact characteristic curves represented by \ref{eq:parameter-eq-differential} leads to a tighter bound.
 
 \subsection{Hyperbolic PDEs}
-TODO
+    TODO
 
 \section{Relevant Experiments}\label{section:experiments}
-TODO
+    TODO
 
 \subsection{Higher Dimensional System with Constant Coefficents} \label{section:high-dimension}
-TODO
+    TODO
 
 \subsection{Linear ODE System with Nonconstant Coefficients -- Nonharmonic Oscillator} \label{section:experiment-nonharmonic-oscillator}
-TODO
+    TODO
 
 \subsection{Nonlinear ODE -- Duffing Equation} \label{section:experiment-duffing}
-TODO
+    TODO
 
 \subsection{Linear PDE System with Nonconstant Coefficients } \label{section:experiment-attractor}
-TODO
+    TODO
 
 \section{Future Work}
-TODO
+    TODO
+
+\printbibliography
+
+\appendix
+
+\section*{Scratch}
+    Define the operator $\I_\lambda$ as follows
+    \begin{equation}
+        \I_\lambda \phi(t) = e^{\lambda t} \int_{0}^{t} e^{-\lambda \tau} \phi(\tau) \mathrm{d}\tau
+    \end{equation}
+
+    It can be shown that $\I_a$ and $\I_b$ are commutative in that $\I_a \circ \I_b = \I_b \circ \I_a$ for any $a$ and $b$:
+
+    TODO: Prove it!
+    \begin{align}
+        \left(\I_a \circ \I_b\right) \phi (t) &= \I_a \left(\I_b \phi(t) \right) \\
+        &= \I_a \left(e^{bt} \int_{0}^{t} e^{-b\tau} \phi(\tau) \mathrm{d} \tau\right) \\
+        &= e^{at}\int_{0}^{t}e^{-as} \left(e^{bs} \int_{0}^{s} e^{-b\tau} \phi(\tau) \mathrm{d} \tau\right)\mathrm{d}s \\
+        &= e^{at}\int_{0}^{t}e^{(b-a)s} \mathrm{d}s \int_{0}^{s} e^{-b\tau} \phi(\tau) \mathrm{d} \tau \\
+        % &= e^{at}\int_{s=0}^{s=t} \int_{\tau=0}^{\tau=s}e^{(b - a)s}  e^{-b\tau} \phi(\tau) \mathrm{d}s \mathrm{d} \tau \\
+        % &= e^{at}\int_{\tau=0}^{\tau=t} \int_{s=0}^{s=\tau}e^{(b - a)\tau} e^{-bs} \phi(s) \mathrm{d}\tau \mathrm{d} s \\
+        % &= e^{at}\int_{s=0}^{s=t}\int_{\tau=s}^{\tau=t} e^{(b - a)\tau} e^{-bs} \phi(s) \mathrm{d}\tau \mathrm{d} s
+    \end{align}
+    % Similarly, there is 
+    % \begin{align}
+    %     \left(\I_b \circ \I_a\right) \phi (t) &= e^{bt}\int_{s=0}^{s=t} \int_{\tau=0}^{\tau=s}e^{(a - b)s}  e^{-a\tau} \phi(\tau) \mathrm{d}s \mathrm{d} \tau \\
+    %     &= e^{bt} \int_{\tau=0}^{\tau=t} \int_{s=0}^{s=\tau}e^{(a - b)\tau}  e^{-as} \phi(s) \mathrm{d}\tau \mathrm{d} s \\
+    %     &= e^{bt} \int_{s=0}^{s=t} \int_{\tau=s}^{\tau=t} e^{(a - b)\tau}  e^{-as} \phi(s) \mathrm{d}\tau \mathrm{d} s \\
+    % \end{align}
+
+    Assuming there  are $Z$ characteristic roots that are equal to $0$, and the max residual is R
+    \begin{equation}
+        \I_0^Z R = \frac{R}{Z!} t^Z
+    \end{equation}
+
+    Assuming there are $k_1$ characteristic roots that are equal to $\lambda_{1}$,
+    \begin{equation}
+        I_{\lambda_1}^{k_1} \frac{R}{Z!} t^Z
+    \end{equation}
+
+\section{Proof of Inequality \ref{eq:single-linear-ode-inverse-operator-inequality}} \label{appendix:inequality-proof-inverse-operator-chain}
+
 
 \end{document}
