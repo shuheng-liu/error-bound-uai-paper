@@ -211,15 +211,15 @@
     \begin{equation}
         \left|\Err_u(t)\right| \leq \Bound_{tight}(t) \leq \Bound_{loose}(t) \quad \forall t \in I.
     \end{equation}
-    Based on Eq. \ref{eq:single-linear-ode-inverse-operator-inequality}, we propose Algorithm \ref{alg:single-linear-ode-constant-coeff-tight} which computes $\Bound_{tight}$ by repeatedly evaluating integrals in \ref{eq:integral-operator-definition} using the cumulative trapezoid rule.
+    Based on Eq. \ref{eq:single-linear-ode-inverse-operator-inequality}, we propose Algorithm \ref{alg:single-linear-ode-constant-coeff-tight} which computes $\Bound_{tight}$ by repeatedly evaluating integrals in \ref{eq:integral-operator-definition} using the cumulative trapezoidal rule.
 
     \begin{algorithm}
         \caption{Tighter Error Bound Estimation for Linear ODE with Const. Coef.\quad  (Stable and Unstable)}\label{alg:single-linear-ode-constant-coeff-tight}
-        \textbf{Input:} Same as Algorithm \ref{alg:single-linear-ode-constant-coeff-loose} \\
-        \textbf{Output:} Same as Algorithm \ref{alg:single-linear-ode-constant-coeff-loose}, except the output bound $\Bound$ is tighter than Algorithm \ref{alg:single-linear-ode-constant-coeff-loose}
+        \textbf{Input:} Same as Algorithm \ref{alg:single-linear-ode-constant-coeff-loose}. \\
+        \textbf{Output:} Same as Algorithm \ref{alg:single-linear-ode-constant-coeff-loose}, except the output bound $\Bound$ is tighter than Algorithm \ref{alg:single-linear-ode-constant-coeff-loose}.
         \begin{algorithmic}
-            \Require $t_k \in I$ for all $k$.
-            \Ensure $\left|\Err_u(t_k)\right| \leq \Bound(t_k)$ for all $k$. 
+            \Require Same as Algorithm \ref{alg:single-linear-ode-constant-coeff-loose}, except $\L$ does not have to be semi-stable.
+            \Ensure Same as Algorithm \ref{alg:single-linear-ode-constant-coeff-loose}. 
             \vspace{0.5em}
             \State $\{\lambda_1, \dots, \lambda_n\} \gets$ numerical roots of $\lambda^n+a_{n-1}\lambda^{n-1}+\dots+a_0=0$ \Comment{Jenkins–Traub algorithm \cite{jenkins1970three}}
             \State $\left\{t_\ell\right\}_{\ell=0}^{L} \gets$ \texttt{linspace(0, T)} \Comment{Choose sufficiently small step length}
@@ -234,7 +234,7 @@
     \end{algorithm}
 
 \subsubsection{System of Linear ODEs with Constant Coefficients} \label{section:system-of-linear-odes-with-constant-coefficients}
-    In this Section
+    TODO
 
 \subsubsection{Linear ODEs with Nonconstant Coefficients}
     TODO
