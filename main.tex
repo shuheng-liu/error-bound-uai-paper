@@ -1,10 +1,10 @@
 % \documentclass{article}
 \documentclass[accepted]{uai2023}
 \usepackage[american]{babel}
-\usepackage{csquotes}
-
 
 \usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+
 \usepackage{amsmath}
 \allowdisplaybreaks
 \usepackage{mathtools}
@@ -13,15 +13,18 @@
 \usepackage{amssymb}
 \usepackage{listings}
 \usepackage{soul}
-\usepackage[sorting=none]{biblatex}
+% \usepackage[sorting=none]{biblatex}
+%     \addbibresource{references.bib}
+\usepackage{natbib} % has a nice set of citation styles and commands
+    \bibliographystyle{plainnat}
+    \renewcommand{\bibsection}{\subsubsection*{References}}
+
 \usepackage{hyperref}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
 
-\addbibresource{references.bib}
-
-\newcommand{\vect}[1]{\boldsymbol{\mathbf{#1}}}
+\newcommand{\vect}[1]{\mathbf{#1}}
 % \newcommand{\eq}[1]{Eq. \ref{#1}}
 \newcommand{\px}[1]{\cfrac{\partial #1}{\partial x}}
 \newcommand{\py}[1]{\cfrac{\partial #1}{\partial y}}
@@ -31,7 +34,7 @@
 \newcommand{\ds}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} s}}
 \newcommand{\dnt}[2]{\cfrac{\mathrm{d}^{#1} #2}{\mathrm{d} t^{#1}}}
 % \newcommand{\Err}{\mathcal{E}}
-\newcommand{\Err}{e}
+\newcommand{\Err}{\mathfrak{e}}
 \newcommand{\Bound}{\mathcal{B}}
 \newcommand{\Loss}{\mathrm{Loss}}
 \newcommand{\Net}{\mathrm{Net}}
@@ -53,13 +56,14 @@
 \author[3]{Pavlos Protopapas}
 % Add affiliations after the authors
 \affil[1, 3]{
-    Intitute for Applied Computational Science\\
+    Institute for Applied Computational Science\\
     Harvard University\\
     Cambridge, Massachusetts, USA
 }
 \affil[2]{
-    Carnegie Mellon University \\
-    Pittsburgh, Pennsylvania, USA
+    Data Science Institute \\
+    Columbia Data\\
+    New York, New York, USA
 }
 
 \begin{document}
@@ -74,95 +78,88 @@
 \end{abstract}
 
 \section{Introduction}
-    TODO
+    Differential equations are a useful mathematical tool in describing various phenomena in natural scicences, engineering, and humanity studies. 
+    As universal approximators, neural networks proves to be powerful in approximating unknown functions. 
+    Using back-propagation and modern computing devices, neural networks are convenient to differentiate, making them an ideal choice for solving differential equations.
 
-\section{Literature Review}
-    TODO
-
-\section{Existing Work}
-    TODO
-\section{Symbols and Notations}
-
-\subsection{Setup}
-    Differnetial equations discussed in this work are posed as equations of the unknown function $v$:
+    Differential equation in this work as posed w.r.t. function $v$,
     {
         \small
         \begin{equation*}
-            \mathcal{D} v = f
+            \mathcal{D} v = f,
         \end{equation*}
     }
-    where $\mathcal{D}$ is some (possible nonlinear) differential operator and $f$ is some forcing function.
-
+    where $\mathcal{D}$ is a (possibly nonlinear) differential operator and $f$ is some forcing function.
     Unlike the exact solution $v(\cdot)$, a neural network solution $u(\cdot)$ does not strictly satisify the equation.
-    Instead, it incurs an additional residual term $r$, which we aim to minimize, to the equation, 
+    Instead, it incurs an additional residual term $r$, which the network aims to minimize, to the equation, 
     {
         \small
         \begin{equation*}
             \mathcal{D} u = f + r.
         \end{equation*}
     }
-    For ODEs, $v$, $u$, and $r$ are considered as functions of the free variable time $t$.
-    For PDEs, they are considered as a function of free spatial coordinates $(x, y)$.
+    The input to $v$, $u$, $f$, and $r$ is time $t$ for ODEs and spatial coordinates $(x, y)$ for PDEs.
     We limit our reasoning to 2-dimensional PDEs in this work.
     In cases where there are multiple unknown functions, we use vectors $\vect{v}$, $\vect{u}$, and $\vect{r}$ instead of the scalar notations $v$, $u$, and $r$.
 
-\subsection{Loss Function}
-    The loss function of the network solution is defined as 
+% \subsection{LOSS FUNCTION}
+    The loss function of the network solution is defined as the $L^2$ norm of residual $r$ over the domain of interest,
     {
         \small
         \begin{align}
-            \Loss{}(u) &:= \frac{1}{|I|} \int_{I} \|r(t)\|^2 \mathrm{d}t \\
-            \text{or,} \quad 
-            \Loss{}(u) &:= \frac{1}{|\Omega|} \int_{\Omega} \|r(x, y)\|^2 \mathrm{d}x\mathrm{d}y
+            \Loss{}(u) &:= \frac{1}{|I|} \int_{I} \|r\|^2 = \frac{1}{|I|} \int_{I} \|\mathcal{D} u - f\|^2,
         \end{align}
     }
-    where $I$ is the temporal domain for ODEs and $\Omega$ is the spatial domain for PDEs.
+    where a spatial domain $\Omega$ is substituted for the temporal domain $I$ in the case of a PDE.
 
-\subsection{Initial and Boundary Conditions}\label{section:initial-and-boundary-conditions}
+\subsection{INITIAL AND BOUNDARY CONDITIONS}\label{section:initial-and-boundary-conditions}
     In order for a neural network to satisify initial or boundary conditions, we apply a technique named parametrization [CITATION HERE]. 
     As an intuitive example, $u(t) = (1 - e^{-t}) \Net(t) + v(0)$ guarantees that $u(t)$ satisifies the initial condition $u(0)=v(0)$. 
     The parametrization is more complicated for higher-order ODEs and most PDEs. 
     We explain the parameterization used for experiments in Section \ref{section:experiments}. 
-    For now, we assume all initial and boundary conditions are exactly satisfied.
+    In this work, we assume all initial and boundary conditions are exactly satisfied.
 
-\subsection{Error and Error Bound}
-    The error of a neural network solution is defined as 
-    {
-        \small
-        \begin{equation}\label{eq:err-definition-master}
-            \Err_u= u - v
-        \end{equation}
-    }
+\subsection{ERROR AND ERROR BOUND}
+    The error of a neural network solution, $u$, is defined as $ \Err_u := u - v$.
+    % {
+    %     \small
+    %     \begin{equation}\label{eq:err-definition-master}
+    %         \Err_u= u - v
+    %     \end{equation}
+    % }
     We are interested in \textit{bounding} the error with a scalar function $\Bound$ such that
     {
         \small
-        \begin{align}
-            \|u(t) - v(t)\| &\leq \Bound(t) \\
-            \text{or, } \quad \|u(x, y) - v(x, y)\| &\leq \Bound(x, y)
-        \end{align}
+        \begin{equation}
+            \|\Err_u(t)\| \leq \Bound(t) \quad\text{or}\quad \|\Err_{u}(x, y)\| \leq \Bound(x, y)
+        \end{equation}
     }
-    where $\|u - v\|$ is referred to as the \textit{absolute error}.
+    where $\|\Err_u\| = \|u - v\|$ is the \textit{absolute error}.
     If $\Bound$ takes on the same value $B \in \mathbb{R}^{+}$ over the domain, it can be replaced with a constant $B$.
 
     Notice that multiple bounds $\Bound$ exist for the same network solution $u$.
-    Our work uncovers several bounds in descending order of tightness, $\Bound^{(1)}(t) \leq \dots \leq \Bound^{(n)}(t) \leq B$. Tighter bounds will incur higher computational cost, and the (loosest) constant bound $B$ can be computed in the fastest way.
+    Our work uncovers several bounds in descending order of tightness, $\Bound^{(1)}(t) \leq \dots \leq \Bound^{(n)}(t) \leq B$. Tighter bounds incur higher computational cost, and the looser bounds (such as constant $B$) are computed faster.
 
 
-\section{Error Bound for ODEs}
+\section{LITERATURE REVIEW}
+    TODO
+
+\section{EXISTING WORK}
+    TODO
+\section{ERROR BOUND FOR ODE}
     In this section, we consider both linear and nonlinear ODEs over the temporal domain $I=[0, T]$. 
     Initial conditions are imposed on $\frac{\mathrm{d}^k}{\mathrm{d}t^k}v(t=0)$ for $k = 0, \dots, (n - 1)$, where $n$ is the order of the ODE.
 
-\subsection{Error Bound for Linear ODEs}\label{section:error-bound-for-linear-odes}
+\subsection{ERROR BOUND FOR LINEAR ODE}\label{section:error-bound-for-linear-odes}
     Consider the linear ODE $\L v(t) = f(t)$, where $\L$ is a linear differential operator. 
-    Its neural-network solution $u$ satisifies $\L u(t) = f(t) + r(t)$. 
-    With the definition of error in Eq. \ref{eq:err-definition-master}, there is
+    Its neural network solution $u$ satisifies $\L u(t) = f(t) + r(t)$. 
+    With the definition of error there is
     {   
         \small
         \begin{equation} \label{eq:linear-error-master}
             \L \Err_u(t) = r(t).
         \end{equation}
     }
-
     With the assumption in Section \ref{section:initial-and-boundary-conditions} that $u$ satisifies the initial conditions at $t=0$, there is
     {
         \small
@@ -170,8 +167,8 @@
             \Err_u(0) = 0, \quad \dt{}{}\Err_u(0) = 0, \quad \dnt{2}{}\Err_u(0) = 0, \quad \dots 
         \end{equation}
     }
-
-    Since initial conditions \ref{eq:linear-error-initial-condition} are known, there must exist a unique inverse transform $\L^{-1}$to $\L$.  Applying $\L^{-1}$ to Eq. \ref{eq:linear-error-master}, there is 
+    With initial conditions \ref{eq:linear-error-initial-condition} known, a unique inverse transform $\L^{-1}$to $\L$ exists. 
+    Applying $\L^{-1}$ to Eq. \ref{eq:linear-error-master}, there is 
     {
         \small
         \begin{equation}\label{eq:linear-error-inverse-master}
@@ -186,7 +183,7 @@
     TODO: explain the goal of the next 2 subsections
 \subsubsection{Single Linear ODE with Constant Coefficients}\label{section:single-linear-ode-with-constant-coefficients}
     Consider the case where $\L = \frac{\mathrm{d}^n}{\mathrm{d}t^n} + \sum_{j=0}^{n - 1} a_j \frac{\mathrm{d}^j}{\mathrm{d}t^j}$ consists of only constant coefficients $a_0, a_1, \dots, \in \mathbb{R}$.
-    Its characteristic equation is defined as, and can be factorized into
+    Its characteristic equation (defined below) can be factorized into
     {
         \small
         \begin{equation} \label{eq:single-linear-ode-characteristic-polynomial-factorization}
@@ -204,14 +201,14 @@
 
     \begin{algorithm}
         \small
-        \caption{Loose Error Bound Estimation for Linear ODE with Const. Coef.\quad (Requires Semi-Stability)}\label{alg:single-linear-ode-constant-coeff-loose}
+        \caption{Loose Error Bound Estimation for Linear ODE with Constant Coefficients\quad (Requires Semi-Stability)}\label{alg:single-linear-ode-constant-coeff-loose}
         \textbf{Input:} Coefficients $\left\{a_j\right\}_{j=0}^{n-1}$ for operator $\L$, residual information $r(\cdot)$, domain of interest $I = [0, T]$, a sequence of time points $\left\{t_k\right\}_{k=1}^{K}$ where error bound is to be evaluated.\\
         \textbf{Output:} Error bound at given time points $\left\{\Bound(t_k)\right\}_{k=1}^{K}$.
 
         \begin{algorithmic}
             \Require $\L$ is stable, and $t_k \in I$ for all $k$.
             \Ensure $\left|\Err_u(t_k)\right| \leq \Bound(t_k)$ for all $k$. 
-            \vspace{0.5em}
+            % \vspace{0.5em}
             \State $\{\lambda_j\}_{j=1}^{n} \gets$ numerical roots of $\lambda^n+a_{n-1}\lambda^{n-1}+\dots=0$ 
             \State \textbf{assert} $\lambda_j \leq 0$ for $1 \leq j \leq n$ 
             \State $Z, C \gets 0, 1$
@@ -230,7 +227,7 @@
             \State \textbf{return} $\left\{\Bound(t_k)\right\}_{k=1}^{K}$
         \end{algorithmic}
         \vspace{0.5em} 
-        \textbf{Note}: Polynomial roots can be computed with Jenkins–Traub algorithm \cite{jenkins1970three}
+        \textbf{Note}: Polynomial roots is solvable with \cite{jenkins1970three}
     \end{algorithm}
 
     An issue with Eq. \ref{eq:linear-ode-const-loose-bound} and Alg. \ref{alg:single-linear-ode-constant-coeff-loose} is that it assumes $\Re{\lambda_j} \leq 0$ for all characteristic roots $\lambda_j$. 
@@ -243,7 +240,7 @@
     \begin{equation} \label{eq:integral-operator-definition}
         \I_\lambda \phi(t) := e^{{\lambda} t} \int_{0}^{t} e^{-{\lambda} \tau} \phi(\tau) \mathrm{d}\tau,
     \end{equation}
-    we show in appendix \ref{appendix:inequality-proof-inverse-operator-chain} that $\L^{-1} = \I_{\lambda_{n}} \circ \I_{\lambda_{n-1}} \circ \dots \circ \I_{\lambda_1}$ and that, for any $\lambda \in \mathbb{C}$, there is $\left|\I_{\lambda} \phi\right| \ \leq \I_{\Re{\lambda}} |\phi|$ in domain $I$.
+    we show in supplementary matrials that $\L^{-1} = \I_{\lambda_{n}} \circ \I_{\lambda_{n-1}} \circ \dots \circ \I_{\lambda_1}$ and that $\left|\I_{\lambda} \phi\right| \ \leq \I_{\Re{\lambda}} |\phi|$ for any $\lambda \in \mathbb{C}$ and function $\phi$.
     Hence, another error bound can be formulated as
     \begin{equation} \label{eq:single-linear-ode-inverse-operator-inequality}
         \Bound_{tight}(t) := \left(\I_{\Re{\lambda_{n}}} \circ \dots \circ \I_{\Re{\lambda_1}}\right) |r(t)|.
@@ -256,13 +253,13 @@
 
     \begin{algorithm}
         \small
-        \caption{Tighter Error Bound Estimation for Linear ODE with Const. Coef.\quad  (Stable and Unstable)}\label{alg:single-linear-ode-constant-coeff-tight}
-        \textbf{Input:} Same as Alg. \ref{alg:single-linear-ode-constant-coeff-loose}. \\
-        \textbf{Output:} Same as Alg. \ref{alg:single-linear-ode-constant-coeff-loose}, except output bound is tighter.
+        \caption{Tighter Error Bound Estimation for Linear ODE with Constant Coefficients\quad  (Stable and Unstable)}\label{alg:single-linear-ode-constant-coeff-tight}
+        \textbf{Input \& Output:} Same as Alg. \ref{alg:single-linear-ode-constant-coeff-loose}. 
+        % \textbf{Output:} Same as Alg. \ref{alg:single-linear-ode-constant-coeff-loose}
         \begin{algorithmic}
             \Require Same as Alg. \ref{alg:single-linear-ode-constant-coeff-loose}, except $\L$ can be unstable.
             \Ensure Same as Alg. \ref{alg:single-linear-ode-constant-coeff-loose}. 
-            \vspace{0.5em}
+            % \vspace{0.5em}
             \State $\{\lambda_j\}_{j=1}^{n} \gets$ numerical roots of $\lambda^n+a_{n-1}\lambda^{n-1}+\dots=0$
             \State $\left\{t_\ell\right\}_{\ell=0}^{L} \gets$ linspace($0$, $T$, \normalfont{sufficient steps})
             \State $\left\{\Bound(t_\ell)\right\}_{\ell=0}^{L} \gets \left\{r(t_\ell)\right\}_{\ell=0}^{L}$
@@ -279,12 +276,40 @@
     \end{algorithm}
 
 \subsubsection{System of Linear ODEs with Constant Coefficients} \label{section:system-of-linear-odes-with-constant-coefficients}
-    TODO
+    Consider a system of linear ODEs with constant coefficients 
+    {
+        \small
+        \vspace{-0.25em}
+        \begin{equation}\label{eq:linear-system-master}
+            \frac{\mathrm{d}}{\mathrm{d}t}\vect{v} + A\vect{v} = \vect{f}(t)
+        \end{equation}
+    }
+    where $\vect{v}$ and $\vect{f}$ are $\mathbb{R}^n$ vectors and $A$ is a $n\times n$ matrix. Denote the Jordan canonical form of $A$ as,
+    {
+        \smaller
+        \begingroup 
+        \setlength\arraycolsep{1pt}
+        \begin{equation}\label{eq:jordan-definition}
+            J = P^{-1}AP= \begin{pmatrix}
+                J_1 & & \\[-0.25em]
+                & \ddots & \\[-0.25em]
+                & & J_K
+            \end{pmatrix}
+            {\text{ where }}
+            J_k = \begin{pmatrix}
+                \lambda_k & 1\\[-0.75em]
+                & \lambda_k & \ddots\\[-0.75em]
+                & & \ddots & 1\\[-0.25em]
+                & & & \lambda_k
+            \end{pmatrix}.
+        \end{equation}
+        \endgroup
+    }
 
 \subsubsection{Linear ODEs with Nonconstant Coefficients}
     TODO
 
-\subsection{Nonlinear ODEs}
+\subsection{NONLINEAR ODE}
     Nonlinear ODEs are hard to solve in general. 
     In this work, we only deal with nonlinear terms of the form $\varepsilon v^k(t)$, where $\varepsilon \in \mathbb{R}$ is a small number. 
     Ideally, $|\varepsilon| \ll 1$. 
@@ -296,40 +321,47 @@
     \begin{equation} \label{eq:nonlinear-ode-master}
         \L v(t) + \varepsilon v^k(t) = f(t),
     \end{equation}
-    where $\L$ is a linear differential operator and initial conditions are specified for the system at time $t=0$. 
+    where $\L$ is a linear differential operator discussed in \ref{section:error-bound-for-linear-odes} and initial conditions are specified for the system at time $t=0$. 
     Notice that each $\varepsilon \in \mathbb{R}$ corresponds to a solution $v(t; \varepsilon)$. 
     We expand the solution $v(t; \varepsilon)$ in terms of $\varepsilon$
     \begin{equation} \label{eq:nonlinear-solution-expansion}
         v(t; \varepsilon) = \sum_{j=0}^{\infty} \varepsilon^j v_j(t) = v_0(t) + \varepsilon v_1(t) + \dots
     \end{equation}
-    For $\varepsilon = 0$, Eq. \ref{eq:nonlinear-ode-master} is reduced to a linear ODE and Eq. \ref{eq:nonlinear-solution-expansion} is reduced to $v_0(t)$. Therefore, $v_0(t)$ is the solution to the linear equation. 
-
     Substituting Eq. \ref{eq:nonlinear-solution-expansion} into Eq. \ref{eq:nonlinear-ode-master}, there is
     {
         \small
         \begin{gather}
             \L \sum_{j=0}^{\infty} \varepsilon^j v_j + \varepsilon \left(\sum_{j=0}^{\infty} \varepsilon^j v_j\right)^k = f \\
             % \sum_{j=0}^{\infty} \varepsilon^j \L v_j + \varepsilon \left(\sum_{j=0}^{\infty} \varepsilon^j v_j\right)^k = f \\
-            \sum_{j=0}^{\infty} \varepsilon^j \L v_j + \sum_{j=0}^{\infty} \varepsilon^{j+1} \sum_{\substack{j_1+\dots+j_k = j\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k} = f \\ 
-            \L v_0 + \sum_{j=1}^{\infty} \varepsilon^j \left(\L v_j + \sum_{\substack{j_1+\dots+j_k = j - 1\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k}\right)= f \label{eq:nonlinear-equation-expansion} 
+            \sum_{j=0}^{\infty} \varepsilon^j \L v_j + \sum_{j=0}^{\infty} \varepsilon^{j+1} \sum_{\substack{j_1+\dots+j_k = j\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k} = f \\[-0.5em]
+            \L v_0 + \sum_{j=1}^{\infty} \varepsilon^j \Bigg(\L v_j + \sum_{\substack{j_1+\dots+j_k = j - 1\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k}\Bigg)= f \label{eq:nonlinear-equation-expansion} 
         \end{gather}
     }
     In order for Eq. \ref{eq:nonlinear-equation-expansion} to hold true for all $\varepsilon$, the coefficients for each $\varepsilon^j$ must match on both sides of Eq. \ref{eq:nonlinear-equation-expansion}. Hence,
     {
         \small
-        \begin{alignat}{4}
+        \begin{alignat}{6}
             &\L v_0 &&= f \label{eq:expansion-epsilon-0}\\
             &\L v_1 + v_0^k &&= 0 \label{eq:expansion-epsilon-1}\\
             &\L v_2 + k v_0^{k-1}v_1 &&= 0 \label{eq:expansion-epsilon-2} \\
-            &\L v_3 + \frac{1}{2}k(k-1)v_0^{k-2}v_1^2 + k v_0^{k-1}v_2 &&= 0 \label{eq:expansion-epsilon-3}\\
-            &&\vdots &\nonumber
+            &\L v_3 + \frac{k(k-1)}{2} v_0^{k-2}v_1^2 + k v_0^{k-1}v_2 &&= 0 \label{eq:expansion-epsilon-3} \\[-1em]
+            &\vdots &&\phantom{=}\,\,\,\,\vdots\nonumber
         \end{alignat}
+        % \vspace{-2em}
+        % \begin{equation*}
+        %     \vdots
+        % \end{equation*}
     }
-    The above system can be solved in a \textit{sequential} manner, either using neural networks or analytical methods,
+
+    \vspace{-1em}
+    For $\varepsilon = 0$, Eq. \ref{eq:nonlinear-solution-expansion} is reduced to $v_0(t)$, which solves the linear problem $\L v=f$. 
+    Also, only $v_0(t)$ is subject to the original initial conditions at $t=0$, while other components, $v_1$, $v_2$, \dots, have initial conditions of $0$ at $t=0$.
+
+    The above system can be solved in a \textit{sequential} manner, either analytically or using neural networks,
     \begin{enumerate}
-        \item Eq. \ref{eq:expansion-epsilon-0} is linear in $v_0$ and can be solved first in a relatively easy manner. 
-        \item After obtaining $v_0$, Eq. \ref{eq:expansion-epsilon-1} is linear in $v_1$ and can again be solved for $v_1$. 
-        \item Similarly, with $v_0$ and $v_1$ known, Eq. \ref{eq:expansion-epsilon-2} becomes linear in $v_2$ and can be solved for $v_2$.
+        \item Eq. \ref{eq:expansion-epsilon-0} is linear in $v_0$ and can be solved first. 
+        \item With $v_0$ known, Eq. \ref{eq:expansion-epsilon-1} is linear in $v_1$ and can be solved for $v_1$. 
+        \item Similarly, with $v_0$ and $v_1$ known, Eq. \ref{eq:expansion-epsilon-2} is linear in $v_2$ and can be solved for $v_2$.
         \item The process can be repeated for Eq. \ref{eq:expansion-epsilon-3} and beyond. Only a linear ODE is solved each time.
     \end{enumerate}
     To solve the system with PINNs, we approximate exact solutions $\left\{v_j(t)\right\}_{j=1}^{\infty}$ with neural network solutions $\left\{u_j(t)\right\}_{j=0}^{J}$ trained sequentially on Eq. \ref{eq:expansion-epsilon-0}, Eq. \ref{eq:expansion-epsilon-1}, and beyond. 
@@ -344,13 +376,14 @@
     {
         \small
         \begin{align}
-            |\Err_u(t; \varepsilon)| &= \Big|u(t; \varepsilon) - v(t; \varepsilon)\Big| \nonumber \\
-            &= \left|\sum_{j=0}^{J} \varepsilon^{j} \Big(u_j(t) - v_j(t)\Big) - \sum_{j=J+1}^{\infty} \varepsilon^j v_j(t)\right| \nonumber \\
-            &\leq \sum_{j=0}^{J} \Big|\Err_{uj}(t)\Big||\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|
+            |\Err_u(t; \varepsilon)| &= \big|u(t; \varepsilon) - v(t; \varepsilon)\big| \nonumber \\[-0.25em]
+            &= \left|\sum_{j=0}^{J} \varepsilon^{j} \Big(u_j(t) - v_j(t)\Big) - \sum_{j=J+1}^{\infty} \varepsilon^j v_j(t)\right| \nonumber \\[-0.5em]
+            &\leq \sum_{j=0}^{J} \Big|\Err_{uj}(t)\Big||\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right| 
         \end{align}
     }
     where $\Err_{uj}(t) := u_j(t) - v_j(t)$ is the \textit{component error} between $u_j(t)$ and $v_j(t)$.
-    Let $\Bound_{j}$ denote the \textit{bound component} such that $|\Err_{uj}(t)| \leq \Bound_j(t)$, assuming $J$ is large and the higher order terms $\left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|$ are negligible, there is 
+    Let $\Bound_{j}$ denote the \textit{bound component} such that $|\Err_{uj}(t)| \leq \Bound_j(t)$.
+    Assuming $J$ is large and higher order terms $\left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|$ are negligible, there is 
     {
         \small
         \begin{equation} \label{eq:nonlinear-bound-components}
@@ -364,17 +397,17 @@
         \small
         \caption{Interative Method for Solution and Error Bound of Nonlinear ODE \ref{eq:nonlinear-ode-master}} \label{alg:nonlinear-iterative}
         \textbf{Input:} Linear operator $\L$, nonlinear degree $k$, domain $I=[0, T]$, highest order $J$ for expansion, a sequence of pairs $\left\{(t_\ell, \varepsilon_\ell)\right\}_{\ell=1}^{L}$ where solution $u(t; \varepsilon)$ and error bound $\Bound(t; \varepsilon)$ is to be evaluated. \\
-        \textbf{Output:} Solution $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^{L}$ and error bound $\left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^{L}$ at given time and $\varepsilon$
+        \textbf{Output:} Solution $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^{L}$ and error bound $\left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^{L}$ 
         \begin{algorithmic}
             \Require $t_\ell \in I$, and $|\varepsilon_\ell|$ to be small (ideally $|\varepsilon_\ell| \ll 1$)
             \Ensure $\Err_{u}(t_\ell; \varepsilon_\ell) \leq \Bound(t_\ell; \varepsilon_\ell)$ 
-            \hspace{0.5em}
+            % \hspace{0.5em}
 
             % \State $p_0 \gets \big(\L u_0 = f, \text{subject to initial conditions}\big)$
             \State $u_0, r_0, \gets$ network solution, residual of $\L u_0 = f$
             \State $\left\{\Bound_{0}(t_\ell)\right\}_{\ell=1}^L \gets$ bound of $\left|\L^{-1}r_0\right|$ at $\left\{t_\ell\right\}_{\ell=1}^L$
             \For{$j \gets 1 \dots J$} 
-                \State $\text{NL}_j[\phi] \gets \sum_{\substack{j_1 + \dots + j_k = j-1\\ j_1, \dots, j_k \geq 0}} \phi_{j_1} \dots \phi_{j_k}$
+                \State Define macro $\text{NL}_j[\phi]$ as $\sum_{\substack{j_1 + \dots + j_k = j-1\\ j_1, \dots, j_k \geq 0}} \phi_{j_1} \dots \phi_{j_k}$
                 \State $u_j, r_j \gets$ network solution, residual of $\L u_j + \text{NL}_j[u] = 0$
                 \State $\Bound_{\text{NL}} \gets \text{upper bound of }|\text{NL}_j[u] - \text{NL}_j[v]|$
                 \State $\left\{\Bound_{j}(t_\ell)\right\}_{\ell=1}^L \gets$  bound of $|\L^{-1}r_j|$+$|\L^{-1}\Bound_{\text{NL}}|$ at $\left\{t_\ell\right\}_{\ell=1}^L$
@@ -389,14 +422,10 @@
         \textbf{Note} 2: $\Bound_\text{NL}$ can be estimated even though exact solutions $v_{0:j-1}$ are unknown. This is because $v_i \in [u_i - \Bound_i, u_i+\Bound_i]$ for all $i$, and $u_{0:j-1}$, $\Bound_{0:j-1}$ are known.
     \end{algorithm}
 
-\section{Error Bound for PDEs}
-    In this section, we consider PDEs defined on a 2-dimensional spatial domain $\Omega$ and limit our discussion to first-order linear PDEs. 
-    However, the similar technique can be used for other scenarios and higher dimensions where the method of characteristics is applicable.
-
-\subsection{First-Order Linear PDEs}
-    Consider a first-order linear PDE defined on some $\Omega$ in the $(x, y)$-plane,
-    {
-        \small
+\section{ERROR BOUND FOR PDE}
+    In this work, we consider PDEs defined on a 2-dimensional spatial domain $\Omega$ and limit our discussion to first-order linear PDEs.\footnote{Similar techniques can be used for more scenarios and higher dimensions where the method of characteristics is applicable.} 
+    Consider the first-order linear PDE,
+    { \small
         \begin{equation}\label{eq:pde-master}
             a(x, y) \partial_x v + b(x, y) \partial_y v + c(x, y)v = f(x, y)
         \end{equation}
@@ -405,10 +434,10 @@
     {
         \small
         \begin{equation}\label{eq:pde-bc-master}
-            v\Big|_{(x, y) \in \Gamma} = g(x, y),
+            v\big|_{(x, y) \in \Gamma} = g(x, y),
         \end{equation}
     }
-    where $a$, $b$, $c$, and $f$ are locally Lipschitz on $\Omega$. For reference, continous differentiability implies local-Lipschitzness, which implies continuity.
+    where $a$, $b$, and $c$ are locally Lipschitz on $\overline\Omega$. For reference, continous differentiability implies local-Lipschitzness, which implies continuity.
 
     We partition the domain into infintely many characteristic curves $\mathcal{C}$, each passing through a point $(x_0, y_0) \in \Gamma$. The resulting curve is a parameterized integral curve 
     {
@@ -448,7 +477,7 @@
         \end{equation}
     }
 
-    In particular, if $c(x, y) \neq 0$ for all $(x, y) \in \Omega$, both sides of Eq. \ref{eq:pde-master} can be divided by $c(x, y)$, resulting in a residual of $r(x, y)/c(x, y)$ where $r(x, y)$ is the residual of Eq. \ref{eq:pde-master}. By Eq. \ref{eq:linear-ode-const-loose-bound}, a constant error bound on $\mathcal{C}$ is $|\Err_u(s)| \leq \max_{s}\left|r(s)/c(s)\right|$. Hence, a trivial constant error bound $B$ (see Alg. \ref{alg:linear-first-order-pde-constant}) over domain $\Omega$ is
+    In particular, if $c(x, y) \neq 0$ for all $(x, y) \in \Omega$, both sides of Eq. \ref{eq:pde-master} can be divided by $c(x, y)$, resulting in a residual of $r(x, y)/c(x, y)$ where $r(x, y)$ is the residual of the original problem. By Eq. \ref{eq:linear-ode-const-loose-bound}, a constant error bound on $\mathcal{C}$ is $|\Err_u(s)| \leq \max_{s}\left|r(s)/c(s)\right|$. Hence, a trivial constant error bound $B$ (see Alg. \ref{alg:linear-first-order-pde-constant}) over domain $\Omega$ is
     {
         \small
         \begin{equation}
@@ -465,9 +494,10 @@
             \Require $c(x, y) \neq 0$ for all $(x, y) \in \Omega$
             \Ensure $|\Err_{u}(x, y)| \leq B$ for all $(x, y) \in \Omega$
 
-            \vspace{0.5em}
+            % \vspace{0.5em}
             \State $\left\{(x_k, y_k)\right\}_{k} \gets$ sufficiently dense meshgrid over $\Omega$
             \State $\displaystyle B \gets \max_{k} \left| \frac{r(x_k, y_k)}{c(x_k, y_k)}\right|$
+            \vspace{-0.25em}
             \State \textbf{return} $B$
         \end{algorithmic}
     \end{algorithm}
@@ -483,76 +513,41 @@
             \Require Integral curve of the vector field $\big[a(x, y)\,\, b(x, y)\big]^T$ passing through any point $(x_\ell, y_\ell) \in \Omega$ is solvable
             \Ensure $|\Err_{u}(x_\ell, y_\ell)| \leq \Bound(x_\ell, y_\ell)$ for all $\ell$
 
-            \vspace{0.5em}
+            % \vspace{0.5em} % no need to skip since the \begin{cases}\end{cases} takes vertical space
+            \State $\mathcal{C}_{\text{gen}} \gets $ general solution (integral curves) to {\smaller $\begin{cases}x'(s) = a(x, y) \\ y'(s) = b(x, y)\end{cases}$}
+            \vspace{-1em} % move this line up a bit
             \For{$\ell \gets 1 \dots L$}
-                \State $\mathcal{C}:(x(s), y(s))\gets$ integral curve passing through $(x_\ell, y_\ell)$
+                \State $\mathcal{C}:(x(s), y(s))\gets$ instance of $\mathcal{C}_{\text{gen}}$ passing through $(x_\ell, y_\ell)$
                 \State $s^* \gets$ solution to $x(s) = x_\ell,\, y(s)=y_\ell$
-                \State $\displaystyle \Bound(x_\ell, y_\ell) \gets e^{c(s^*)}\int_{0}^{s^*}r(s) e^{-c(s)\,s}\mathrm{d}s$ 
+                \vspace{-0.25em}
+                \State $\displaystyle \Bound(x_\ell, y_\ell) \gets e^{c(s^*)}\int_{0}^{s^*}r(x(s), y(s)) e^{-c(x(s),y(s))\,s}\mathrm{d}s$ 
+                \vspace{-0.5em}
             \EndFor
-            \State \textbf{return} $\left\{(x_\ell, y_\ell)\right\}_{\ell=1}^{L}$
+            \State \textbf{return} $\left\{\Bound(x_\ell, y_\ell)\right\}_{\ell=1}^{L}$
         \end{algorithmic}
     \end{algorithm}
 % \subsection{Hyperbolic PDEs}
 %     TODO
 
-\section{Relevant Experiments}\label{section:experiments}
+\section{RELEVANT EXPERIMENTS}\label{section:experiments}
     TODO
 
-\subsection{Higher Dimensional System with Constant Coefficents} \label{section:high-dimension}
+\subsection{HIGHER DIMENSIONAL SYSTEM WITH CONSTANT COEFFICENTS} \label{section:high-dimension}
     TODO
 
-\subsection{Linear ODE System with Nonconstant Coefficients -- Nonharmonic Oscillator} \label{section:experiment-nonharmonic-oscillator}
+\subsection{LINEAR ODE SYSTEM WITH NONCONSTANT COEFFICIENTS -- NONHARMONIC OSCILLATOR} \label{section:experiment-nonharmonic-oscillator}
     TODO
 
-\subsection{Nonlinear ODE -- Duffing Equation} \label{section:experiment-duffing}
+\subsection{NONLINEAR ODE -- DUFFING EQUATION} \label{section:experiment-duffing}
     TODO
 
-\subsection{Linear PDE System with Nonconstant Coefficients } \label{section:experiment-attractor}
+\subsection{LINEAR PDE SYSTEM WITH NONCONSTANT COEFFICIENTS } \label{section:experiment-attractor}
     TODO
 
-\section{Future Work}
+\section{FUTURE WORK}
     TODO
 
-% \printbibliography
-
-\appendix
-
-% \section*{Scratch}
-%     Define the operator $\I_\lambda$ as follows
-%     \begin{equation}
-%         \I_\lambda \phi(t) = e^{\lambda t} \int_{0}^{t} e^{-\lambda \tau} \phi(\tau) \mathrm{d}\tau
-%     \end{equation}
-
-%     It can be shown that $\I_a$ and $\I_b$ are commutative in that $\I_a \circ \I_b = \I_b \circ \I_a$ for any $a$ and $b$:
-
-%     TODO: Prove it!
-%     \begin{align}
-%         \left(\I_a \circ \I_b\right) \phi (t) &= \I_a \left(\I_b \phi(t) \right) \\
-%         &= \I_a \left(e^{bt} \int_{0}^{t} e^{-b\tau} \phi(\tau) \mathrm{d} \tau\right) \\
-%         &= e^{at}\int_{0}^{t}e^{-as} \left(e^{bs} \int_{0}^{s} e^{-b\tau} \phi(\tau) \mathrm{d} \tau\right)\mathrm{d}s \\
-%         &= e^{at}\int_{0}^{t}e^{(b-a)s} \mathrm{d}s \int_{0}^{s} e^{-b\tau} \phi(\tau) \mathrm{d} \tau \\
-%         % &= e^{at}\int_{s=0}^{s=t} \int_{\tau=0}^{\tau=s}e^{(b - a)s}  e^{-b\tau} \phi(\tau) \mathrm{d}s \mathrm{d} \tau \\
-%         % &= e^{at}\int_{\tau=0}^{\tau=t} \int_{s=0}^{s=\tau}e^{(b - a)\tau} e^{-bs} \phi(s) \mathrm{d}\tau \mathrm{d} s \\
-%         % &= e^{at}\int_{s=0}^{s=t}\int_{\tau=s}^{\tau=t} e^{(b - a)\tau} e^{-bs} \phi(s) \mathrm{d}\tau \mathrm{d} s
-%     \end{align}
-%     % Similarly, there is 
-%     % \begin{align}
-%     %     \left(\I_b \circ \I_a\right) \phi (t) &= e^{bt}\int_{s=0}^{s=t} \int_{\tau=0}^{\tau=s}e^{(a - b)s}  e^{-a\tau} \phi(\tau) \mathrm{d}s \mathrm{d} \tau \\
-%     %     &= e^{bt} \int_{\tau=0}^{\tau=t} \int_{s=0}^{s=\tau}e^{(a - b)\tau}  e^{-as} \phi(s) \mathrm{d}\tau \mathrm{d} s \\
-%     %     &= e^{bt} \int_{s=0}^{s=t} \int_{\tau=s}^{\tau=t} e^{(a - b)\tau}  e^{-as} \phi(s) \mathrm{d}\tau \mathrm{d} s \\
-%     % \end{align}
-
-%     Assuming there  are $Z$ characteristic roots that are equal to $0$, and the max residual is R
-%     \begin{equation}
-%         \I_0^Z R = \frac{R}{Z!} t^Z
-%     \end{equation}
-
-%     Assuming there are $k_1$ characteristic roots that are equal to $\lambda_{1}$,
-%     \begin{equation}
-%         I_{\lambda_1}^{k_1} \frac{R}{Z!} t^Z
-%     % \end{equation}
-
-\section{Proof of Inequality \ref{eq:single-linear-ode-inverse-operator-inequality}} \label{appendix:inequality-proof-inverse-operator-chain}
+\bibliography{references}
 
 
 \end{document}
