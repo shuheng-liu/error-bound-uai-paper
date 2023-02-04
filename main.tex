@@ -61,8 +61,8 @@
     Cambridge, Massachusetts, USA
 }
 \affil[2]{
-    Data Science Institute \\
-    Columbia Data\\
+    Data Science Institute\\
+    Columbia University\\
     New York, New York, USA
 }
 
@@ -78,7 +78,7 @@
 \end{abstract}
 
 \section{Introduction}
-    Differential equations are a useful mathematical tool in describing various phenomena in natural scicences, engineering, and humanity studies. 
+    Differential equations are a useful mathematical tool in describing various phenomena in natural sciences, engineering, and humanity studies. 
     As universal approximators, neural networks proves to be powerful in approximating unknown functions. 
     Using back-propagation and modern computing devices, neural networks are convenient to differentiate, making them an ideal choice for solving differential equations.
 
@@ -90,7 +90,7 @@
         \end{equation*}
     }
     where $\mathcal{D}$ is a (possibly nonlinear) differential operator and $f$ is some forcing function.
-    Unlike the exact solution $v(\cdot)$, a neural network solution $u(\cdot)$ does not strictly satisify the equation.
+    Unlike the exact solution $v(\cdot)$, a neural network solution $u(\cdot)$ does not strictly satisfy the equation.
     Instead, it incurs an additional residual term $r$, which the network aims to minimize, to the equation, 
     {
         \small
@@ -113,10 +113,10 @@
     where a spatial domain $\Omega$ is substituted for the temporal domain $I$ in the case of a PDE.
 
 \subsection{INITIAL AND BOUNDARY CONDITIONS}\label{section:initial-and-boundary-conditions}
-    In order for a neural network to satisify initial or boundary conditions, we apply a technique named parametrization [CITATION HERE]. 
-    As an intuitive example, $u(t) = (1 - e^{-t}) \Net(t) + v(0)$ guarantees that $u(t)$ satisifies the initial condition $u(0)=v(0)$. 
+    In order for a neural network to satisfy initial or boundary conditions, we apply a technique named parametrization [CITATION HERE]. 
+    As an intuitive example, $u(t) = (1 - e^{-t}) \Net(t) + v(0)$ guarantees that $u(t)$ satisfies the initial condition $u(0)=v(0)$. 
     The parametrization is more complicated for higher-order ODEs and most PDEs. 
-    We explain the parameterization used for experiments in Section \ref{section:experiments}. 
+    We explain the parametrization used for experiments in Section \ref{section:experiments}. 
     In this work, we assume all initial and boundary conditions are exactly satisfied.
 
 \subsection{ERROR AND ERROR BOUND}
@@ -152,7 +152,7 @@
 
 \subsection{ERROR BOUND FOR LINEAR ODE}\label{section:error-bound-for-linear-odes}
     Consider the linear ODE $\L v(t) = f(t)$, where $\L$ is a linear differential operator. 
-    Its neural network solution $u$ satisifies $\L u(t) = f(t) + r(t)$. 
+    Its neural network solution $u$ satisfies $\L u(t) = f(t) + r(t)$. 
     With the definition of error there is
     {   
         \small
@@ -160,7 +160,7 @@
             \L \Err_u(t) = r(t).
         \end{equation}
     }
-    With the assumption in Section \ref{section:initial-and-boundary-conditions} that $u$ satisifies the initial conditions at $t=0$, there is
+    With the assumption in Section \ref{section:initial-and-boundary-conditions} that $u$ satisfies the initial conditions at $t=0$, there is
     {
         \small
         \begin{equation} \label{eq:linear-error-initial-condition}
@@ -221,9 +221,10 @@
             \EndFor
             \State $C_{\lambda_{1:n}}\gets C / Z!$
             \State $R_{\max} \gets \max_{\tau \in I} |r(\tau)|$ \Comment{Use linspace with mini-steps}
-            \For{$k \gets 1 \dots K$}
-                \State $\Bound(t_k) \gets C_{\lambda_{1:n}}\, R_{\max}\, t_k^{Z} $
-            \EndFor
+            % \For{$k \gets 1 \dots K$}
+                % \State $\Bound(t_k) \gets C_{\lambda_{1:n}}\, R_{\max}\, t_k^{Z} $
+            % \EndFor
+            \State $\left\{\Bound(t_k)\right\}_{k=1}^{K} \gets \left\{C_{\lambda_{1:n}}\, R_{\max}\, t_k^{Z}\right\}_{k=1}^{K}$
             \State \textbf{return} $\left\{\Bound(t_k)\right\}_{k=1}^{K}$
         \end{algorithmic}
         \vspace{0.5em} 
@@ -318,15 +319,21 @@
 
 \subsubsection{Perturbation Theory} \label{section:perturbation-theory}
     Consider the nonlinear ODE with constant coefficients
-    \begin{equation} \label{eq:nonlinear-ode-master}
-        \L v(t) + \varepsilon v^k(t) = f(t),
-    \end{equation}
+    {
+        \small
+        \begin{equation} \label{eq:nonlinear-ode-master}
+            \L v(t) + \varepsilon v^k(t) = f(t),
+        \end{equation}
+    }
     where $\L$ is a linear differential operator discussed in \ref{section:error-bound-for-linear-odes} and initial conditions are specified for the system at time $t=0$. 
     Notice that each $\varepsilon \in \mathbb{R}$ corresponds to a solution $v(t; \varepsilon)$. 
     We expand the solution $v(t; \varepsilon)$ in terms of $\varepsilon$
-    \begin{equation} \label{eq:nonlinear-solution-expansion}
-        v(t; \varepsilon) = \sum_{j=0}^{\infty} \varepsilon^j v_j(t) = v_0(t) + \varepsilon v_1(t) + \dots
-    \end{equation}
+    {   
+        \small
+        \begin{equation} \label{eq:nonlinear-solution-expansion}
+            v(t; \varepsilon) = \sum_{j=0}^{\infty} \varepsilon^j v_j(t) = v_0(t) + \varepsilon v_1(t) + \dots
+        \end{equation}
+    }
     Substituting Eq. \ref{eq:nonlinear-solution-expansion} into Eq. \ref{eq:nonlinear-ode-master}, there is
     {
         \small
@@ -395,7 +402,7 @@
 
     \begin{algorithm}
         \small
-        \caption{Interative Method for Solution and Error Bound of Nonlinear ODE \ref{eq:nonlinear-ode-master}} \label{alg:nonlinear-iterative}
+        \caption{Iterative Method for Solution and Error Bound of Nonlinear ODE \ref{eq:nonlinear-ode-master}} \label{alg:nonlinear-iterative}
         \textbf{Input:} Linear operator $\L$, nonlinear degree $k$, domain $I=[0, T]$, highest order $J$ for expansion, a sequence of pairs $\left\{(t_\ell, \varepsilon_\ell)\right\}_{\ell=1}^{L}$ where solution $u(t; \varepsilon)$ and error bound $\Bound(t; \varepsilon)$ is to be evaluated. \\
         \textbf{Output:} Solution $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^{L}$ and error bound $\left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^{L}$ 
         \begin{algorithmic}
@@ -412,7 +419,7 @@
                 \State $\Bound_{\text{NL}} \gets \text{upper bound of }|\text{NL}_j[u] - \text{NL}_j[v]|$
                 \State $\left\{\Bound_{j}(t_\ell)\right\}_{\ell=1}^L \gets$  bound of $|\L^{-1}r_j|$+$|\L^{-1}\Bound_{\text{NL}}|$ at $\left\{t_\ell\right\}_{\ell=1}^L$
             \EndFor
-            \State $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L \gets \left\{\sum_{j=0}^{J}\varepsilon_\ell^j u(t_\ell)\right\}_{\ell=1}^L $ 
+            \State $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L \gets \left\{\sum_{j=0}^{J}\varepsilon_\ell^j u_j(t_\ell)\right\}_{\ell=1}^L $ 
             \State $\left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L \gets \left\{\sum_{j=0}^{J}\varepsilon_\ell^j \Bound_j(t_\ell)\right\}_{\ell=1}^L $ 
             \State \textbf{return} $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L, \left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L$
         \end{algorithmic}
@@ -425,7 +432,8 @@
 \section{ERROR BOUND FOR PDE}
     In this work, we consider PDEs defined on a 2-dimensional spatial domain $\Omega$ and limit our discussion to first-order linear PDEs.\footnote{Similar techniques can be used for more scenarios and higher dimensions where the method of characteristics is applicable.} 
     Consider the first-order linear PDE,
-    { \small
+    { 
+        \small
         \begin{equation}\label{eq:pde-master}
             a(x, y) \partial_x v + b(x, y) \partial_y v + c(x, y)v = f(x, y)
         \end{equation}
@@ -437,9 +445,9 @@
             v\big|_{(x, y) \in \Gamma} = g(x, y),
         \end{equation}
     }
-    where $a$, $b$, and $c$ are locally Lipschitz on $\overline\Omega$. For reference, continous differentiability implies local-Lipschitzness, which implies continuity.
+    where $a$, $b$, and $c$ are locally Lipschitz on $\overline\Omega$. For reference, continuous differentiability implies local-Lipschitzness, which implies continuity.
 
-    We partition the domain into infintely many characteristic curves $\mathcal{C}$, each passing through a point $(x_0, y_0) \in \Gamma$. The resulting curve is a parameterized integral curve 
+    We partition the domain into infinitely many characteristic curves $\mathcal{C}$, each passing through a point $(x_0, y_0) \in \Gamma$. The resulting curve is a parameterized integral curve 
     {
         \small
         \begin{equation*} 
@@ -489,13 +497,13 @@
         \small
         \caption{Constant Err Bound for Linear 1st-Order PDE}\label{alg:linear-first-order-pde-constant}
         \textbf{Input:} Coefficient $c(x, y)$ in Eq. \ref{eq:pde-master}, residual information $r(x, y)$, domain of interest $\Omega$\\
-        \textbf{Output:} A constant error bound $B$
+        \textbf{Output:} A constant error bound $B \in \mathbb{R}^+$
         \begin{algorithmic}
             \Require $c(x, y) \neq 0$ for all $(x, y) \in \Omega$
             \Ensure $|\Err_{u}(x, y)| \leq B$ for all $(x, y) \in \Omega$
 
             % \vspace{0.5em}
-            \State $\left\{(x_k, y_k)\right\}_{k} \gets$ sufficiently dense meshgrid over $\Omega$
+            \State $\left\{(x_k, y_k)\right\}_{k} \gets$ sufficiently dense mesh grid over $\Omega$
             \State $\displaystyle B \gets \max_{k} \left| \frac{r(x_k, y_k)}{c(x_k, y_k)}\right|$
             \vspace{-0.25em}
             \State \textbf{return} $B$
@@ -532,7 +540,7 @@
 \section{RELEVANT EXPERIMENTS}\label{section:experiments}
     TODO
 
-\subsection{HIGHER DIMENSIONAL SYSTEM WITH CONSTANT COEFFICENTS} \label{section:high-dimension}
+\subsection{HIGHER DIMENSIONAL SYSTEM WITH CONSTANT COEFFICIENTS} \label{section:high-dimension}
     TODO
 
 \subsection{LINEAR ODE SYSTEM WITH NONCONSTANT COEFFICIENTS -- NONHARMONIC OSCILLATOR} \label{section:experiment-nonharmonic-oscillator}
