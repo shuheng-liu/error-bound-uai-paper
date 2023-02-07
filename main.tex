@@ -43,6 +43,7 @@
 \newcommand{\Int}[1]{e^{#1 t} \int_{0}^{t} e^{- #1 \tau}\mathrm{d}\tau}
 \newcommand{\Intt}{\int_{0}^{t}\mathrm{d}\tau}
 \renewcommand{\Re}[1]{\mathcal{R}e\left(#1\right)}
+\newcommand{\abs}{|\cdot|}
 
 
 \title{Residual-Based Error Bound for Physics-Informed Neural Networks}
@@ -219,12 +220,13 @@
                     \State $C \gets C / \Re{-\lambda_j}$
                 \EndIf
             \EndFor
-            \State $C_{\lambda_{1:n}}\gets C / Z!$
+            % \State $C_{\lambda_{1:n}}\gets C / Z!$
             \State $R_{\max} \gets \max_{\tau \in I} |r(\tau)|$ \Comment{Use linspace with mini-steps}
             % \For{$k \gets 1 \dots K$}
                 % \State $\Bound(t_k) \gets C_{\lambda_{1:n}}\, R_{\max}\, t_k^{Z} $
             % \EndFor
-            \State $\left\{\Bound(t_k)\right\}_{k=1}^{K} \gets \left\{C_{\lambda_{1:n}}\, R_{\max}\, t_k^{Z}\right\}_{k=1}^{K}$
+            % \State $\left\{\Bound(t_k)\right\}_{k=1}^{K} \gets \left\{C_{\lambda_{1:n}}\, R_{\max}\, t_k^{Z}\right\}_{k=1}^{K}$
+            \State $\left\{\Bound(t_k)\right\}_{k=1}^{K} \gets \left\{\frac{C}{Z!}R_{\max}\, t_k^{Z}\right\}_{k=1}^{K}$
             \State \textbf{return} $\left\{\Bound(t_k)\right\}_{k=1}^{K}$
         \end{algorithmic}
         \vspace{0.5em} 
@@ -306,9 +308,63 @@
         \end{equation}
         \endgroup
     }
+    Let $n_k$ be the size of Jordan block $J_k$, we construct the following operator matrix
+    {
+        \smaller
+        \begingroup 
+        \setlength\arraycolsep{1pt}
+        \begin{equation}\label{eq:operator-block}
+            I= \begin{pmatrix}
+                I_1 \\ & I_2 \\ &&\ddots \\ &&& I_K
+            \end{pmatrix}
+            {\text{ where }}
+            I_k = \begin{pmatrix}
+                \I_{\lambda_k} & \I_{\lambda_k}^2 & \dots &\I_{\lambda_k}^{n_k} \\
+                0 & \I_{\lambda_k} & \dots &\I_{\lambda_k}^{n_k-1} \\
+                \vdots & \vdots & \ddots & \vdots \\
+                0 & 0 & \dots & \I_{\lambda_k}
+            \end{pmatrix}.
+        \end{equation}
+        \endgroup
+    }
+    An \textit{elementwise bound} vector $\pmb{\Bound}(t)$ can be formulated as 
+    {
+        \small
+        \begin{equation}
+            \Err_{\vect{u}}^{\abs} \preceq \pmb{\Bound}(t) := P^{\abs} (P^{-1})^{\abs} \ \vect{I}\left[\vect{r}^{\abs}(t)\right],
+        \end{equation}
+    }
+    where superscript $\abs$ denotes elementwise absolute value and symbol $\preceq$ denotes elementwise inequality. In the meantime, a \textit{norm bound} scalar $\Bound(t)$ also exists
+    {
+        \small
+        \begin{equation}
+            \left\|\Err_{\vect{u}}(t)\right\| \leq \Bound(t) := \mathrm{cond}(P)\left\|\vect{I}[\vect{1}]\right\| \, \|\vect{r}(t)\| 
+        \end{equation}
+    }
+    where $\mathrm{cond}(P)$ is the conditional number of $P$ w.r.t. induced matrix norm and $\vect{1}$ is an $n\times 1$ column vector of $1$s. (Proof in supplementary material) See Alg. \ref{alg:system-bound}.
 
-\subsubsection{Linear ODEs with Nonconstant Coefficients}
-    TODO
+    \begin{algorithm}
+        \small
+        \caption{ODE System Bound (norm and elementwise)}\label{alg:system-bound}
+        \textbf{Input:} Coefficient matrix $A \in \mathbb{R}^{n\times n}$, residual vector $\vect{r}(t)$, a sequence of points $\left\{(x_\ell, y_\ell)\right\}_{\ell=1}^{L}$ where error is to be bounded\\
+        \textbf{Output:} Norm bound (scalar) $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$ and componentwise bound (vector) $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L}$ at given time points
+        \begin{algorithmic}
+            \Ensure $\|\Err_{u}(t_\ell)\| \leq \Bound(t_\ell)$ and $\Err_{u}(t_\ell) \preceq \pmb{\Bound}(t_\ell)$ for all $\ell$
+
+            \State $J, P \gets $ Jordan canonicalization of $A = PJP^{-1}$
+            % \State $\vect{I} \gets$ construct matrix operator $\vect{I}$ using Eq. \ref{eq:operator-block}
+            \For{each Jordan block $J_k$ of shape $n_k \times n_k$}
+                \State $I_k \gets$ construct operator block using Eq. \ref{eq:operator-block} 
+            \EndFor
+            \State $\vect{I} \gets$ diag($I_1$, $I_2$,  \dots)
+            \State $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L} \gets \{P^{\abs} (P^{-1})^{\abs} \vect{I}[\vect{r}^{\abs}(t_\ell)]\}_{\ell=1}^{L}$
+            \State $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L} \gets \{\mathrm{cond}(P)\left\|\vect{I}[\vect{1}]\right\| \, \|\vect{r}(t_\ell)\|\}_{\ell=1}^{L}$
+            \State \textbf{return} $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$, $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L}$
+        \end{algorithmic}
+    \end{algorithm}
+
+% \subsubsection{Linear ODEs with Nonconstant Coefficients}
+%     TODO
 
 \subsection{NONLINEAR ODE}
     Nonlinear ODEs are hard to solve in general. 

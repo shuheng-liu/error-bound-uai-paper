@@ -211,16 +211,19 @@ This supplementary material provides \begin{enumerate}
         &\leq \I_{\Re{\lambda_k}} |q_{N_k - 1}| + \I_{\Re{\lambda_k}} |\delta_{N_k}| \\
         &\leq \I_{\Re{\lambda_k}} |q_{N_k - 1}| + \I_{\Re{\lambda_k}}^2 |q_{N_k}|.
     \end{align}
-    The first inequality is a direct application of Eq. \ref{eq:operator-I-inequality}. The second inequality is based on linearity of the operator $\I$ and the triangle inequality. The third inequality is obtained by substituting Eq. \ref{eq:jordan-chain-bound-last}.
+    The first inequality is a direct application of Eq. \ref{eq:operator-I-inequality}. 
+    The second inequality is based on linearity of the operator $\I$ and the triangle inequality. 
+    The third inequality is obtained by substituting Eq. \ref{eq:jordan-chain-bound-last}.
+    Here the superscript in $\I^2$ denotes compositional square $\I^2 = \I\circ\I$.
 
     By induction, for the $k$-th Jordan block ($N_{k-1} < l \leq N_k$), there is
     \begin{equation}\label{eq:system-scalar-inequality-transformed}
         |\delta_{l}|  \leq \sum_{j=0}^{N_k - l} \I_{\Re{\lambda_k}} ^ {j+1} |q_{l+j}|
     \end{equation}
-    We use this inequaltiy to bound the norm of the error vector, $\left|\Err_\vect{u}\right|$, as well as absolute value of each component, $\left|\left(\Err_{\vect{u}}\right)_l\right|$.
+    We use this inequaltiy to bound the norm of the error vector, $\left\|\Err_\vect{u}\right\|$, as well as absolute value of each component, $\left|\left(\Err_{\vect{u}}\right)_l\right|$. 
 \subsection{Elementwise Bound}
     Using matrix notations, Eq. \ref{eq:system-scalar-inequality-transformed} can be rewritten as
-    \begin{equation}
+    \begin{equation} \label{eq:system-component-inequality-transformed}
         \pmb{\delta}^{\abs} \preceq \vect{I}\ \vect{q}^{\abs}
     \end{equation}
     where $\preceq$ denotes componentwise inequality, the superscript $\abs$ denotes componentwise absolute value, and $\vect{I}$ is defined as operator matrix $\vect{I} := \begin{pmatrix} I_1 \\ & I_2 \\ && \ddots \end{pmatrix}$ where each $I_k = \begin{pmatrix}
@@ -238,6 +241,15 @@ This supplementary material provides \begin{enumerate}
         = P^{\abs} (P^{-1})^{\abs}  \vect{I}\ \vect{r}^{\abs}
     \end{equation}
 \subsection{Norm Bound}
+    By Eq. \ref{eq:system-component-inequality-transformed}, we have $ \|\pmb{\delta}\| \leq \big\|\vect{I} [\|\vect{q}\| \cdot \vect{1}]\big\| = \|\vect{q}\| \left\|\vect{I}[\vect{1}]\right\|$, where $\vect{1}$ is $n \times 1$ (constant) column vector whose components are all equal to 1.
+
+    With $\Err_{\vect{u}} = P \pmb{\delta}$ and $\vect{q} = P^{-1}\vect{r}$, there is $\left\|\Err_{\vect{u}}\right\| \leq \left\|P\right\| \|\pmb{\delta}\|$ and $\|\vect{q}\| \leq \left\|P^{-1}\right\| \|r\|$, where $\|\cdot\|$ denotes the norm of a vector or the induced norm of a matrix. Consequently,
+    \begin{align}
+        \left\|\Err_{\vect{u}}(t)\right\| &\leq \left\|P\right\| \|\pmb{\delta}(t)\| \\
+        &\leq \|P\|\, \|\vect{q}(t)\|\, \left\|\vect{I}[\vect{1}]\right\|\\
+        &\leq \|P\|\,\left\|P^{-1}\right\|\, \left\|\vect{I}[\vect{1}]\right\| \, \|\vect{r}(t)\| \\
+        &=\mathrm{cond}(P)\left\|\vect{I}[\vect{1}]\right\| \, \|\vect{r}(t)\|
+    \end{align}
 
     \bibliography{references}
 
