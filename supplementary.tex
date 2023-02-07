@@ -80,7 +80,7 @@ This supplementary material provides \begin{enumerate}
 
 \appendix
 \section{PROOF OF PROPOSITIONS IN SECTION \ref{section:single-linear-ode-with-constant-coefficients}}
-\subsection{Proof of inverse operator $\I_{\lambda} = \L_{\lambda}^{-1}$}
+\subsection{Inverse operator $\I_{\lambda} = \L_{\lambda}^{-1}$}
 
     \paragraph{Proposition} Let $\L_{\lambda}$ ($\lambda \in \mathbb{C}$) be the differential operator $\L_{\lambda}\phi := \dt{\phi} - \lambda \phi$. The inverse of $\L_\lambda \phi = \psi$ is given by $\phi = \I_{\lambda} \psi$ if $\phi(0)=0$, where 
     \begin{equation}
@@ -88,6 +88,15 @@ This supplementary material provides \begin{enumerate}
     \end{equation}
     \paragraph{Proof} It can be shown by simply solving the differential equation $\dt{\phi} + \phi=\psi$ under the initial condition $\phi(0) =0$.
 
+    There are a few properties of operator $\I_{\lambda}$ that we are interested in
+    \begin{enumerate}
+        \item \textbf{Linearity:} $\I_{\lambda} (c_1\psi_1 + c_2\psi_2) = c_1\,\I\psi_1 + c_2\,\I\psi_2$ for all functions $\psi_1, \psi_2$ and constants $c_1, c_2 \in \mathbb{C}$
+        \item \textbf{Monotonicity:} $\I_\lambda \psi_1(t) \leq \I\psi_2(t)$ for all $t > 0$ if $\psi_1(t) \leq \psi_2(t)$ for all $t > 0$,
+        \item \textbf{Commutativity:} $\I_{\lambda_1} \circ \I_{\lambda_2} = \I_{\lambda_2} \circ \I_{\lambda_1} $ for all $\lambda_1, \lambda_2 \in \mathbb{C}$. This can be shown because $\L_{\lambda_1}\circ\L_{\lambda_2} = \L_{\lambda_2} \circ \L_{\lambda_1}$. Therefore, the inverse operators $\I_{\lambda_2} \circ \I_{\lambda_1} \I_{\lambda_1}\circ\I_{\lambda_2}$ must also be equal.
+        \item \textbf{Absolute Inequality:} $|\I_\lambda \psi(t)| \leq \I_{\Re{\lambda}}|\psi(t)|$, which we explain and prove in the next subsection.
+    \end{enumerate}
+
+\subsection{Proof of operator inequality $|\I_\lambda \psi| \leq \I_{\Re{\lambda}}|\psi|$}
     \paragraph{Proposition} For any $\lambda \in \mathbb{C}$ and scalar function $\phi: \mathbb{R}^{+} \to \mathbb{C}$, there is 
     \begin{equation}\label{eq:operator-I-inequality}
         |\I_\lambda \psi(t)| \leq \I_{\Re{\lambda}}|\psi(t)|.

@@ -327,21 +327,21 @@
         \end{equation}
         \endgroup
     }
-    An \textit{elementwise bound} vector $\pmb{\Bound}(t)$ can be formulated as 
+    An \textit{elementwise bound} (vector) $\pmb{\Bound}(t)$ can be formulated as 
     {
         \small
         \begin{equation}
             \Err_{\vect{u}}^{\abs} \preceq \pmb{\Bound}(t) := P^{\abs} (P^{-1})^{\abs} \ \vect{I}\left[\vect{r}^{\abs}(t)\right],
         \end{equation}
     }
-    where superscript $\abs$ denotes elementwise absolute value and symbol $\preceq$ denotes elementwise inequality. In the meantime, a \textit{norm bound} scalar $\Bound(t)$ also exists
+    where superscript $\abs$ denotes elementwise absolute value and symbol $\preceq$ denotes elementwise inequality. In the meantime, a \textit{norm bound} (scalar) $\Bound(t)$ also exists
     {
         \small
         \begin{equation}
-            \left\|\Err_{\vect{u}}(t)\right\| \leq \Bound(t) := \mathrm{cond}(P)\left\|\vect{I}[\vect{1}]\right\| \, \|\vect{r}(t)\| 
+            \left\|\Err_{\vect{u}}(t)\right\| \leq \Bound(t) := \mathrm{cond}(P)\left\|\vect{I}[\vect{1}]\right\| \, \|\vect{r}(t)\|,
         \end{equation}
     }
-    where $\mathrm{cond}(P)$ is the conditional number of $P$ w.r.t. induced matrix norm and $\vect{1}$ is an $n\times 1$ column vector of $1$s. (Proof in supplementary material) See Alg. \ref{alg:system-bound}.
+    where $\mathrm{cond}(P)$ is the conditional number of $P$ w.r.t. induced matrix norm and $\vect{1}$ is an $n\times 1$ column vector of $1$s. (Proof in supp. material) See Alg. \ref{alg:system-bound} for implementation.
 
     \begin{algorithm}
         \small
