@@ -34,7 +34,7 @@
 \newcommand{\ds}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} s}}
 \newcommand{\dnt}[2]{\cfrac{\mathrm{d}^{#1} #2}{\mathrm{d} t^{#1}}}
 % \newcommand{\Err}{\mathcal{E}}
-\newcommand{\Err}{\mathfrak{e}}
+\newcommand{\Err}{\eta}
 \newcommand{\Bound}{\mathcal{B}}
 \newcommand{\Loss}{\mathrm{Loss}}
 \newcommand{\Net}{\mathrm{Net}}
@@ -121,7 +121,7 @@
     In this work, we assume all initial and boundary conditions are exactly satisfied.
 
 \subsection{ERROR AND ERROR BOUND}
-    The error of a neural network solution, $u$, is defined as $ \Err_u := u - v$.
+    The error of a neural network solution $u$ is defined as $ \Err_u := u - v$.
     % {
     %     \small
     %     \begin{equation}\label{eq:err-definition-master}
@@ -180,8 +180,8 @@
     Notice that only (a) the equation structure $\L$ and (b) the residual information $r$ are relevant to estimating the error bound. 
     All other factors, including parameters of the neural network $u$, forcing function $f$, and initial conditions, do not affect the estimation at all.
 
-\subsubsection{Integrating Factor Technique}
-    TODO: explain the goal of the next 2 subsections
+% \subsubsection{Integrating Factor Technique}
+%     TODO: explain the goal of the next 2 subsections
 \subsubsection{Single Linear ODE with Constant Coefficients}\label{section:single-linear-ode-with-constant-coefficients}
     Consider the case where $\L = \frac{\mathrm{d}^n}{\mathrm{d}t^n} + \sum_{j=0}^{n - 1} a_j \frac{\mathrm{d}^j}{\mathrm{d}t^j}$ consists of only constant coefficients $a_0, a_1, \dots, \in \mathbb{R}$.
     Its characteristic equation (defined below) can be factorized into
@@ -241,15 +241,15 @@
     In the case where $\L$ only consists of constant coefficients, we can factorize its characteristic equation as Eq. \ref{eq:single-linear-ode-characteristic-polynomial-factorization}.
     Defining operator $\I_{\lambda}$ as 
     \begin{equation} \label{eq:integral-operator-definition}
-        \I_\lambda \phi(t) := e^{{\lambda} t} \int_{0}^{t} e^{-{\lambda} \tau} \phi(\tau) \mathrm{d}\tau,
+        \I_\lambda \psi(t) := e^{{\lambda} t} \int_{0}^{t} e^{-{\lambda} \tau} \psi(\tau) \mathrm{d}\tau, \quad \forall \psi : I \to \mathbb{C}
     \end{equation}
-    we show in supplementary materials that $\L^{-1} = \I_{\lambda_{n}} \circ \I_{\lambda_{n-1}} \circ \dots \circ \I_{\lambda_1}$ and that $\left|\I_{\lambda} \phi\right| \ \leq \I_{\Re{\lambda}} |\phi|$ for any $\lambda \in \mathbb{C}$ and function $\phi$.
+    we show in supplementary materials that $\L^{-1} = \I_{\lambda_{n}} \circ \I_{\lambda_{n-1}} \circ \dots \circ \I_{\lambda_1}$ and that $\left|\I_{\lambda} \psi\right| \ \leq \I_{\Re{\lambda}} |\psi|$ for any $\lambda \in \mathbb{C}$ and function $\psi$.
     Hence, another error bound can be formulated as
     \begin{equation} \label{eq:single-linear-ode-inverse-operator-inequality}
         \Bound_{tight}(t) := \left(\I_{\Re{\lambda_{n}}} \circ \dots \circ \I_{\Re{\lambda_1}}\right) |r(t)|.
     \end{equation}
-    It can be proven that $\Bound_{tight}$ in Eq. \ref{eq:single-linear-ode-inverse-operator-inequality} is tighter than $\Bound_{loose}$ when the latter is applicable,
-    \begin{equation}
+    It is also proven in supplementary material that $\Bound_{tight}$ is tighter than $\Bound_{loose}$ if and when $\Bound_{loose}$ is applicable,
+    \begin{equation} \label{eq:single-linear-ode-tight-and-loose}
         \left|\Err_u(t)\right| \leq \Bound_{tight}(t) \leq \Bound_{loose}(t) \quad \forall t \in I.
     \end{equation}
     Based on Eq. \ref{eq:single-linear-ode-inverse-operator-inequality}, we propose Alg. \ref{alg:single-linear-ode-constant-coeff-tight} which computes $\Bound_{tight}$ by repeatedly evaluating integrals in \ref{eq:integral-operator-definition} using the cumulative trapezoidal rule.
@@ -331,7 +331,7 @@
     {
         \small
         \begin{equation}
-            \Err_{\vect{u}}^{\abs} \preceq \pmb{\Bound}(t) := P^{\abs} (P^{-1})^{\abs} \ \vect{I}\left[\vect{r}^{\abs}(t)\right],
+            \Err_{\vect{u}}^{\abs}(t) \preceq \pmb{\Bound}(t) := P^{\abs} (P^{-1})^{\abs} \ \vect{I}\left[\vect{r}^{\abs}(t)\right],
         \end{equation}
     }
     where superscript $\abs$ denotes elementwise absolute value and symbol $\preceq$ denotes elementwise inequality. In the meantime, a \textit{norm bound} (scalar) $\Bound(t)$ also exists
@@ -566,7 +566,7 @@
         \end{algorithmic}
     \end{algorithm}
 
-    Independent of the assumption $c(x, y)\neq 0$, in scenarios where the curve $\mathcal{C}$ passing through any $(x, y)$ can be computed, the error can be computed using Alg. \ref{alg:linear-first-order-pde-general}
+    Independent of the assumption $c(x, y)\neq 0$, in scenarios where the curve $\mathcal{C}$ passing through any $(x, y)$ can be computed, the error can be computed using Alg. \ref{alg:linear-first-order-pde-general}.
 
     \begin{algorithm}
         \small

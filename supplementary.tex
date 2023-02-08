@@ -37,7 +37,7 @@
 \newcommand{\ds}[1]{\cfrac{\mathrm{d} #1}{\mathrm{d} s}}
 \newcommand{\dnt}[2]{\cfrac{\mathrm{d}^{#1} #2}{\mathrm{d} t^{#1}}}
 % \newcommand{\Err}{\mathcal{E}}
-\newcommand{\Err}{\mathfrak{e}}
+\newcommand{\Err}{\eta}
 \newcommand{\Bound}{\mathcal{B}}
 \newcommand{\Loss}{\mathrm{Loss}}
 \newcommand{\Net}{\mathrm{Net}}
@@ -80,7 +80,7 @@ This supplementary material provides \begin{enumerate}
 
 \appendix
 \section{PROOF OF PROPOSITIONS IN SECTION \ref{section:single-linear-ode-with-constant-coefficients}}
-\subsection{Inverse operator $\I_{\lambda} = \L_{\lambda}^{-1}$}
+\subsection{Inverse operator $\I_{\lambda} = \L_{\lambda}^{-1}$} \label{appendix:inverse-operator}
 
     \paragraph{Proposition} Let $\L_{\lambda}$ ($\lambda \in \mathbb{C}$) be the differential operator $\L_{\lambda}\phi := \dt{\phi} - \lambda \phi$. The inverse of $\L_\lambda \phi = \psi$ is given by $\phi = \I_{\lambda} \psi$ if $\phi(0)=0$, where 
     \begin{equation}
@@ -91,7 +91,7 @@ This supplementary material provides \begin{enumerate}
     There are a few properties of operator $\I_{\lambda}$ that we are interested in
     \begin{enumerate}
         \item \textbf{Linearity:} $\I_{\lambda} (c_1\psi_1 + c_2\psi_2) = c_1\,\I\psi_1 + c_2\,\I\psi_2$ for all functions $\psi_1, \psi_2$ and constants $c_1, c_2 \in \mathbb{C}$
-        \item \textbf{Monotonicity:} $\I_\lambda \psi_1(t) \leq \I\psi_2(t)$ for all $t > 0$ if $\psi_1(t) \leq \psi_2(t)$ for all $t > 0$,
+        \item \textbf{Monotonicity:} $\I_\lambda \psi_1(t) \leq \I\psi_2(t)$ for all $t > 0$ if $\psi_1(t) \leq \psi_2(t)$ for all $t > 0$, where $\lambda \in \mathbb{R}$,
         \item \textbf{Commutativity:} $\I_{\lambda_1} \circ \I_{\lambda_2} = \I_{\lambda_2} \circ \I_{\lambda_1} $ for all $\lambda_1, \lambda_2 \in \mathbb{C}$. This can be shown because $\L_{\lambda_1}\circ\L_{\lambda_2} = \L_{\lambda_2} \circ \L_{\lambda_1}$. Therefore, the inverse operators $\I_{\lambda_2} \circ \I_{\lambda_1} \I_{\lambda_1}\circ\I_{\lambda_2}$ must also be equal.
         \item \textbf{Absolute Inequality:} $|\I_\lambda \psi(t)| \leq \I_{\Re{\lambda}}|\psi(t)|$, which we explain and prove in the next subsection.
     \end{enumerate}
@@ -126,6 +126,57 @@ This supplementary material provides \begin{enumerate}
         &=e^{\Re{\lambda} t} \int_{0}^{t} e^{-\Re{\lambda} \tau}|\psi(\tau)|\mathrm{d}\tau =: \I_{\Re{\lambda}}|\psi(t)|
     \end{align}
 
+\subsection{PROOF OF TIGHT AND LOOSE BOUNDS}
+This section proves Inequality \ref{eq:single-linear-ode-tight-and-loose} in the main paper, namely,
+\begin{equation}\label{eq:tight-bound-to-prove}
+    |\Err_{u}(t)| \leq \Bound_{tight}(t) :=\left(\I_{\Re{-\lambda_1}}\circ\dots\circ\I_{\Re{-\lambda_n}}\right)r(t)
+\end{equation}
+and, if $\Re{\lambda_j} \leq 0$ for all $\lambda_j$, 
+\begin{equation}\label{eq:loose-bound-to-prove}
+    \Bound_{tight}(t) \leq \Bound_{loose}(t) := \cfrac{\prod_{j=1; \Re{\lambda_j} \neq 0}^n \Re{\lambda_j}^{-1} }{Z!} \max_{\tau\in I}\left|r(\tau)\right|\, t^{Z},
+\end{equation}
+where $Z$ is the number $\lambda_j$ whose real part is $0$.
+
+\paragraph{Proof} For any linear differential operator $\L=\dnt{n}{} + a_{n-1}\dnt{n-1}{}+\dots+a_0$ whose coefficients $\{a_j\}_{j=0}^{n-1}$ satisfy 
+\[
+    \lambda^n + a_{n-1}\lambda^{n-1} + \dots +a_0 = \prod_{j=1}^{n} \left(\lambda - \lambda_j\right),
+\]
+it can be verified that $\L = \L_{\lambda_1} \circ\dots \circ \L_{\lambda_n}$, where $\L_{\lambda_j}\phi := \dt{\phi}-\lambda_j\phi$ as defined in appendix \ref{appendix:inverse-operator}. Then by the proposition in appendix \ref{appendix:inverse-operator}, the inverse operator is given by
+\begin{equation}
+    \L^{-1} = \left(\L_{\lambda_1} \circ\dots \circ \L_{\lambda_n}\right)^{-1} = \L_{\lambda_n}^{-1} \circ\dots \circ \L_{\lambda_1}^{-1} = \I_{\lambda_n} \circ\cdots\circ\I_{\lambda_1}
+\end{equation}
+Through repeated application of Inequality \ref{eq:operator-I-inequality}, we can prove Eq. \ref{eq:tight-bound-to-prove}
+\begin{align}
+    \left|\Err_{u}(t)\right| &= \left| \L^{-1} r(t) \right| \\
+    &=\left|\left(\I_{\lambda_n} \circ\cdots\circ\I_{\lambda_1}\right) r(t)\right| \\
+    &=\left|\I_{\lambda_n}\left(\I_{\lambda_{n-1}} \circ\cdots\circ\I_{\lambda_1}\right) r(t)\right| \\
+    &\leq \I_{\Re{\lambda_n}}\left|\left(\I_{\lambda_{n-1}} \circ\cdots\circ\I_{\lambda_1}\right) r(t)\right| \\
+    &\leq \left(\I_{\Re{\lambda_n}}\circ \I_{\Re{\lambda_{n-1}}}\right)\left|\left(\I_{\lambda_{n-2}} \circ\cdots\circ\I_{\lambda_1}\right) r(t)\right| \\
+    &\leq \dots \nonumber \\
+    &\leq \left(\I_{\Re{\lambda_n}}\circ \cdots \circ\I_{\Re{\lambda_{1}}}\right)\left|r(t)\right| =: \Bound_{tight}(t).
+\end{align}
+
+In order to prove Eq. \ref{eq:loose-bound-to-prove}, consider the cases of $\Re{\lambda} < 0$ and $\Re{\lambda} = 0$ separately.
+\begin{itemize}
+    \item If $\Re{\lambda} < 0$, for any constant $c\in \mathbb{R^{+}}$, there is \begin{equation} \I_{\Re{\lambda}} [c] = e^{\Re{\lambda t}} \int_{0}^{t} c e^{-\Re{\lambda}\tau} \mathrm{d}\tau = \frac{c}{-\Re{\lambda}} \left(1 - e^{\Re{\lambda} t}\right) \leq \cfrac{c}{-\Re{\lambda}}\quad \text{for} \quad t\geq0\end{equation}
+    \item If $\Re{\lambda} = 0$, for any monomial $c t^{m}$, there is \begin{equation} \I_{\Re{\lambda }}[ct^m] = \I_{0}[ct^m] \int_{0}^{t} c\mathrm{\tau} ^m \mathrm{d}\tau = \frac{c}{m+1}t^{m+1} \quad\text{for}\quad t > 0 \end{equation}
+\end{itemize}
+
+Let $\displaystyle R_{\max} := \max_{\tau\in I} |r(t)|$ be the max absolute residual.
+Let $Z = |\left\{\lambda_j\ :\Re{\lambda_j} =0,1 \leq j \leq n\right\}|$. 
+Assume without loss of generality that $\Re{\lambda_1}, \dots, \Re{\lambda_{n-Z}} < 0$ and that $\Re{\lambda_{n-Z+1}} = \dots = \Re{\lambda_n} = 0$.
+By the monotonicity of operator $\I_{\Re{\lambda}}$, there is $\I_{\Re{\lambda}} \phi_1(t) \leq \I_{\Re{\lambda}} \phi_2(t)$ if $\phi_1(t) \leq \phi_2(t)$ for all $t \in I$. Hence, 
+\begin{align}
+    \Bound_{tight}(t) &= \left(\I_{\Re{\lambda_n}}\circ \cdots \circ\I_{\Re{\lambda_{1}}}\right)\left|r(t)\right| \\
+    &\leq \left(\I_{\Re{\lambda_n}}\circ \cdots \circ\I_{\Re{\lambda_{1}}}\right) R_{\max}\\
+    &\leq \left(\I_{\Re{\lambda_n}}\circ \cdots \circ\I_{\Re{\lambda_{2}}}\right) \frac{1}{-\Re{\lambda_1}}R_{\max}\\
+    &\leq \dots \nonumber \\
+    &\leq \left(\I_{\Re{\lambda_n}}\circ \cdots \circ\I_{\Re{\lambda_{n-Z+1}}}\right) \prod_{j=1}^{n-Z}\frac{1}{-\Re{\lambda_j}}R_{\max}\\
+    &= \I_0^Z \left[\prod_{j=1, \Re{\lambda_j}\neq 0}^{n}\frac{1}{-\Re{\lambda_j}}R_{\max}\right]\\
+    &= \frac{1}{Z!} \prod_{j=1, \Re{\lambda_j}\neq 0}^{n}\frac{1}{-\Re{\lambda_j}}R_{\max}\, t^Z
+\end{align}
+which proves Eq. \ref{eq:loose-bound-to-prove}.
+
 \section{PROOF OF PROPOSITIONS IN SECTION \ref{section:system-of-linear-odes-with-constant-coefficients}}
     Consider the problem \ref{eq:linear-system-master} in main paper. 
 
@@ -136,11 +187,11 @@ This supplementary material provides \begin{enumerate}
     where $\vect{r(t)} = \dt{}\vect{u}(t) + A\vect{u}(t) - \vect{f}(t)$ is the residual vector.
 
     With the Jordan canonical form \ref{eq:jordan-definition}, we multiply both sides of Eq. \ref{eq:system-err-equation} by $P^{-1}$,
-    \begin{align}
+    \begin{gather}
         P^{-1}\dt{}\Err_{\vect{u}} + P^{-1}A \Err_{\vect{u}} = P^{-1}\vect{r}(t) \\
         P^{-1}\dt{}\Err_{\vect{u}} + JP^{-1} \Err_{\vect{u}} = P^{-1}\vect{r}(t) \\
         \dt{}\pmb{\delta} + J \pmb{\delta}  = \vect{q}(t) 
-    \end{align}
+    \end{gather}
     where $\pmb{\delta}(t) := P^{-1}\Err_\vect{u}(t)$ and $\vect{q}(t) = P^{-1}\vect{r}(t)$. Recall that $J$ is a Jordan canonical form consisting of $K$ Jordan blocks. Each Jordan block $J_k$ ($1\leq k \leq K$) is an $n_k \times n_k$ square matrix, with eigenvalue $\lambda_k$ on its diagonal and $1$ on its super-diagonal, where $\sum_{k=1}^{K} n_k = n$. Expanding the vector notations, there is 
     \begingroup
         \newcommand{\?}[1]{\multicolumn{1}{c|}{#1}}
