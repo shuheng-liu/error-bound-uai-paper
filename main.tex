@@ -239,11 +239,11 @@
 
     Notice that bounds of $\Err_u$ in Eq. \ref{eq:linear-error-inverse-master} can be estimated if the inverse operator $\L^{-1}$ is known. 
     In the case where $\L$ only consists of constant coefficients, we can factorize its characteristic equation as Eq. \ref{eq:single-linear-ode-characteristic-polynomial-factorization}.
-    Defining operator $\I_{\lambda}$ as 
+    Let operator $\I_{\lambda}$ be defined as 
     \begin{equation} \label{eq:integral-operator-definition}
-        \I_\lambda \psi(t) := e^{{\lambda} t} \int_{0}^{t} e^{-{\lambda} \tau} \psi(\tau) \mathrm{d}\tau, \quad \forall \psi : I \to \mathbb{C}
+        \I_\lambda \psi(t) := e^{{\lambda} t} \int_{0}^{t} e^{-{\lambda} \tau} \psi(\tau) \mathrm{d}\tau, \quad \forall \psi : I \to \mathbb{C}.
     \end{equation}
-    we show in supplementary materials that $\L^{-1} = \I_{\lambda_{n}} \circ \I_{\lambda_{n-1}} \circ \dots \circ \I_{\lambda_1}$ and that $\left|\I_{\lambda} \psi\right| \ \leq \I_{\Re{\lambda}} |\psi|$ for any $\lambda \in \mathbb{C}$ and function $\psi$.
+    We show in supplementary materials that $\L^{-1} = \I_{\lambda_{n}} \circ \I_{\lambda_{n-1}} \circ \dots \circ \I_{\lambda_1}$ and that $\left|\I_{\lambda} \psi\right| \ \leq \I_{\Re{\lambda}} |\psi|$ for any $\lambda \in \mathbb{C}$ and function $\psi$.
     Hence, another error bound can be formulated as
     \begin{equation} \label{eq:single-linear-ode-inverse-operator-inequality}
         \Bound_{tight}(t) := \left(\I_{\Re{\lambda_{n}}} \circ \dots \circ \I_{\Re{\lambda_1}}\right) |r(t)|.
@@ -308,21 +308,17 @@
         \end{equation}
         \endgroup
     }
-    Let $n_k$ be the size of Jordan block $J_k$, we construct the following operator matrix
+    Let $n_k$ be the size of Jordan block $J_k$, we construct an operator matrix $\vect{I} = \text{diag}(I_1, \dots, I_k)$, where 
     {
         \smaller
         \begingroup 
         \setlength\arraycolsep{1pt}
         \begin{equation}\label{eq:operator-block}
-            I= \begin{pmatrix}
-                I_1 \\ & I_2 \\ &&\ddots \\ &&& I_K
-            \end{pmatrix}
-            {\text{ where }}
             I_k = \begin{pmatrix}
-                \I_{\lambda_k} & \I_{\lambda_k}^2 & \dots &\I_{\lambda_k}^{n_k} \\
-                0 & \I_{\lambda_k} & \dots &\I_{\lambda_k}^{n_k-1} \\
+                \I_{-\Re{\lambda_k}} & \I_{-\Re{\lambda_k}}^2 & \dots &\I_{-\Re{\lambda_k}}^{n_k} \\[1ex]
+                0 & \I_{-\Re{\lambda_k}} & \dots &\I_{-\Re{\lambda_k}}^{n_k-1} \\[-1ex]
                 \vdots & \vdots & \ddots & \vdots \\
-                0 & 0 & \dots & \I_{\lambda_k}
+                0 & 0 & \dots & \I_{-\Re{\lambda_k}}
             \end{pmatrix}.
         \end{equation}
         \endgroup
@@ -338,10 +334,11 @@
     {
         \small
         \begin{equation}
-            \left\|\Err_{\vect{u}}(t)\right\| \leq \Bound(t) := \mathrm{cond}(P)\left\|\vect{I}[\vect{1}]\right\| \, \|\vect{r}(t)\|,
+            \left\|\Err_{\vect{u}}(t)\right\| \leq \Bound(t) := \mathrm{cond}(P)\left\|\vect{I}\Big[\|\vect{r}(t)\|\vect{1}\Big]\right\|
         \end{equation}
     }
-    where $\mathrm{cond}(P)$ is the conditional number of $P$ w.r.t. induced matrix norm and $\vect{1}$ is an $n\times 1$ column vector of $1$s. (Proof in supp. material) See Alg. \ref{alg:system-bound} for implementation.
+    where $\mathrm{cond}(P)$ is the conditional number of $P$ w.r.t. induced matrix norm and $\vect{1}$ is an $n\times 1$ column vector of $1$s (Proof in supp. material).
+    See Alg. \ref{alg:system-bound} for implementation.
 
     \begin{algorithm}
         \small
@@ -358,7 +355,7 @@
             \EndFor
             \State $\vect{I} \gets$ diag($I_1$, $I_2$,  \dots)
             \State $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L} \gets \{P^{\abs} (P^{-1})^{\abs} \vect{I}[\vect{r}^{\abs}(t_\ell)]\}_{\ell=1}^{L}$
-            \State $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L} \gets \{\mathrm{cond}(P)\left\|\vect{I}[\vect{1}]\right\| \, \|\vect{r}(t_\ell)\|\}_{\ell=1}^{L}$
+            \State $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L} \gets \{\mathrm{cond}(P)\left\|\vect{I}\big[\|\vect{r}(t)\|\vect{1}\big]\right\|\}_{\ell=1}^{L}$
             \State \textbf{return} $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$, $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L}$
         \end{algorithmic}
     \end{algorithm}
@@ -541,7 +538,9 @@
         \end{equation}
     }
 
-    In particular, if $c(x, y) \neq 0$ for all $(x, y) \in \Omega$, both sides of Eq. \ref{eq:pde-master} can be divided by $c(x, y)$, resulting in a residual of $r(x, y)/c(x, y)$ where $r(x, y)$ is the residual of the original problem. By Eq. \ref{eq:linear-ode-const-loose-bound}, a constant error bound on $\mathcal{C}$ is $|\Err_u(s)| \leq \max_{s}\left|r(s)/c(s)\right|$. Hence, a trivial constant error bound $B$ (see Alg. \ref{alg:linear-first-order-pde-constant}) over domain $\Omega$ is
+    In particular, if $c(x, y) \neq 0$ for all $(x, y) \in \Omega$, both sides of Eq. \ref{eq:pde-master} can be divided by $c(x, y)$, resulting in a residual of $r(x, y)/c(x, y)$ where $r(x, y)$ is the residual of the original problem. 
+    By Eq. \ref{eq:linear-ode-const-loose-bound}, a constant error bound on $\mathcal{C}$ is $|\Err_u(s)| \leq \max_{s}\left|r(s)/c(s)\right|$. 
+    Hence, a (loose) constant error bound $B$ (see Alg. \ref{alg:linear-first-order-pde-constant}) over domain $\Omega$ is
     {
         \small
         \begin{equation}
