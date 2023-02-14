@@ -593,19 +593,55 @@
 %     TODO
 
 \section{RELEVANT EXPERIMENTS}\label{section:experiments}
-    TODO
+    In this section, we perform experiments on equations with (known) manufactured solutions.
+    We train networks to solve these equations, and collect their residual information.
+    We apply algorithms in this paper to derive an error bound using only residual informatino and equation structure. 
+    Lastly, we show that the absolute error strictly falls within the bounds, regardless of how well the networks are trained.
+
+    Throughout this section, we always use network architectures with a single input unit, 2 hidden layers each with 32 hidden units, and a single output unit.
+    The activation function is $\tanh$. 
+    The training domain is $I=[0, 1]$ for ODEs and $\Omega=[0,1]^2$ for PDEs. 
+    We use a standard Adam Optimizer with default parameters to train networks for 1000 epochs.
+
+    Notice that we list these configurations only for reproducibility of visualizations. 
+    Our error bounding algorithm works under any other configurations.
 
 \subsection{HIGHER DIMENSIONAL SYSTEM WITH CONSTANT COEFFICIENTS} \label{section:high-dimension}
-    TODO
+    \begingroup 
+        \setlength\arraycolsep{1pt}
+        In this part, we train $6$ networks to solve a $6$-dimensional linear system of ODEs with constant coefficients, namely, $\frac{\mathrm{d}}{\mathrm{d}t}\vect{v} + A\vect{v} = \vect{f}$. 
+        We pick $A = PJP^{-1}$ where {\small $J=\begin{pmatrix}J_1\\[-0.75ex]&J_2\\[-0.75ex]&&J_3\end{pmatrix}$} with {\small $J_1 = \begin{pmatrix} 4&1\\[-0.75ex]&4&1\\[-0.75ex]&&4\\[-0.5ex]\end{pmatrix}$, $J_2 = \begin{pmatrix} 3&1\\[-0.75ex]&3\\[-0.5ex]\end{pmatrix}$ }, $J_3=2$, and $P$ is a random orthogonal matrix.
+    \endgroup
 
+    We pick the initial conditions to be $\vect{v}(0) = P(0\, 0\, 1\, 0\, 1\, 1)^{T}$ and the forcing function to be $\vect{f}(t) = P(\cos t + 4 \sin t  + \ln(1+t),\, \frac{1}{1+t} + 4 \ln(1+t) + (t+1),\, 4t + 5,\, 2t + 3t^2 + e^t,\, 4 e^t,\, 2 \cos t - \sin t )^T$, so that the manufactured exact solution is $\vect{v}(t) = P ( \sin t,\, \ln(t + 1),\, t + 1,\, t^2,\, e^t,\, \cos t)^T$.
+
+    After obtaining the residual information $\vect{r}(t)=\frac{\mathrm d}{\mathrm d t}\vect{u}(t) + A\vect{u}(t) - \vect{f}(t)$, we apply Alg. \ref{alg:system-bound} to obtain componentwise bound and norm bound of $\pmb{\Err} = \vect{u}-\vect{v}$. See Fig. \ref{fig:system-bound}. It is shown in Fig. \ref{fig:system-bound} that the bounds hold true over the domain.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=\linewidth]{assets/system-bound.pdf}
+        \caption{\textit{Componentwise} bound (upper) and \textit{Norm} bound (Lower) for linear ODE system with constant coefficients}\label{fig:system-bound}
+    \end{figure}
 \subsection{LINEAR ODE SYSTEM WITH NONCONSTANT COEFFICIENTS -- NONHARMONIC OSCILLATOR} \label{section:experiment-nonharmonic-oscillator}
-    TODO
-
 \subsection{NONLINEAR ODE -- DUFFING EQUATION} \label{section:experiment-duffing}
-    TODO
+    In this part, we consider a Duffing oscillator, which is characterized by the following $2$nd order nonlinear equation
+    \begin{equation}\label{eq:duffing}
+        \frac{\mathrm{d}^2 v}{\mathrm{d}t^2} + 3 \frac{\mathrm{d}v}{\mathrm{d}t} + 2v +\varepsilon v^3 = \cos t 
+    \end{equation}
+    under the initial conditions $v(0) = 1$ and $v'(0) = 1$, where $\varepsilon$ controls the nonlinearity of the equation. Using Alg. \ref{alg:nonlinear-iterative}, we solve the equation on $I=[0, 2]$ for linspaced $\varepsilon \in (-0.9, 0.9)$ using neural networks and bound the errors. The input $J$ to Alg. \ref{alg:nonlinear-iterative} is chosen to be $6$. Namely, we expand the solution and bound components from degree $0$ to $6$.
+
+    The analytical solution to Eq. \ref{eq:duffing} is complicated. Hence, we use the RKF4(5) method to compute numerical solutions that are close enough to exact solutions for visualization purposes. See Fig. \ref{fig:duffing-solution} for network solutions compared against RKF4(5) and Fig. \ref{fig:duffing-error} for error bounds compared against true absolute error.
+    \begin{figure*}
+        \centering
+        \includegraphics[width=\linewidth]{assets/duffing-solution.pdf}
+        \caption{RKF45 and Network Solutions (max-degree 0$\sim$6) to duffing equation for $\varepsilon \in (-0.9, 0.9)$}\label{fig:duffing-solution}
+        \includegraphics[width=\linewidth]{assets/duffing-error.pdf}
+        \caption{Error bound (max-degree 0$\sim$6) for $\varepsilon \in (-0.9, 0.9)$}\label{fig:duffing-error}
+    \end{figure*}
+
+    
 
 \subsection{LINEAR PDE SYSTEM WITH NONCONSTANT COEFFICIENTS } \label{section:experiment-attractor}
-    TODO
 
 
 \bibliography{references}

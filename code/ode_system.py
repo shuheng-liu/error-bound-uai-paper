@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 from scipy.stats import ortho_group
 import matplotlib.pyplot as plt
@@ -9,6 +11,8 @@ from neurodiffeq.solvers import Solver1D
 from neurodiffeq.utils import set_seed
 
 from util import OperatorIStable
+import visualization_helper
+
 
 
 def stackup(fn):
@@ -25,6 +29,8 @@ def stackup(fn):
 if __name__ == "__main__":
     set_seed(0)
 
+    visualization_helper.setup()
+
     J = np.array([
         [4, 1, 0, 0, 0, 0],  # Jordan Block 1: shape 3x3, eigenvlaue=4
         [0, 4, 1, 0, 0, 0],
@@ -35,6 +41,7 @@ if __name__ == "__main__":
     ])
 
     P = ortho_group.rvs(dim=6)
+    # P = np.random.rand(6, 6)
     A = P @ J @ np.linalg.pinv(P)
     A_tensor = torch.tensor(A)
     P_tensor = torch.tensor(P)
@@ -82,23 +89,24 @@ if __name__ == "__main__":
         n_batches_valid=1,
     )
 
-    solver.fit(100)
+    solver.fit(1000)
     u_fn = stackup(solver.get_solution(best=False))
     DOMAIN = np.linspace(0, 1, 10000)
     us = u_fn(DOMAIN, to_numpy=True)
     vs = v_fn(DOMAIN, to_numpy=True)
     errs = us - vs
 
-    residual = solver.get_residuals(DOMAIN, to_numpy=True, best=False, no_reshape=True)
+    residual = solver.get_residuals(
+        DOMAIN, to_numpy=True, best=False, no_reshape=True)
 
     def get_operator_matrix_output(psi):
         psi1, psi2, psi3, psi4, psi5, psi6 = psi.T
-        I41=OperatorIStable(-4, integral_multiplicity=1).bind_domain(DOMAIN)
-        I42=OperatorIStable(-4, integral_multiplicity=2).bind_domain(DOMAIN)
-        I43=OperatorIStable(-4, integral_multiplicity=3).bind_domain(DOMAIN)
-        I31=OperatorIStable(-3, integral_multiplicity=1).bind_domain(DOMAIN)
-        I32=OperatorIStable(-3, integral_multiplicity=2).bind_domain(DOMAIN)
-        I21=OperatorIStable(-2, integral_multiplicity=1).bind_domain(DOMAIN)
+        I41 = OperatorIStable(-4, integral_multiplicity=1).bind_domain(DOMAIN)
+        I42 = OperatorIStable(-4, integral_multiplicity=2).bind_domain(DOMAIN)
+        I43 = OperatorIStable(-4, integral_multiplicity=3).bind_domain(DOMAIN)
+        I31 = OperatorIStable(-3, integral_multiplicity=1).bind_domain(DOMAIN)
+        I32 = OperatorIStable(-3, integral_multiplicity=2).bind_domain(DOMAIN)
+        I21 = OperatorIStable(-2, integral_multiplicity=1).bind_domain(DOMAIN)
         return np.stack([
             I41(psi1) + I42(psi2) + I43(psi3),
             I41(psi2) + I43(psi3),
@@ -122,3 +130,21 @@ if __name__ == "__main__":
     B_scalar = cond_P * I_norm
     assert (np.linalg.norm(errs, axis=1) <= B_scalar).all()
 
+    fig, (ax1, ax2) = plt.subplots(2, 1, dpi=70, figsize=(6, 6), height_ratios=[4, 2])
+    colors = ['blue', 'red', 'orange', 'magenta', '0.3', 'green']
+    for i in range(6):
+        ax1.plot(DOMAIN, abs(B_vector)[:, i], ':', color=colors[i], label=rf'$\mathbf{{\mathcal{{B}}}}_{i+1}$', zorder=100+i)
+        ax1.plot(DOMAIN, abs(errs)[:, i], color=colors[i], label=rf'$|\eta_{i+1}|$')
+    ax1.set_ylabel(r'Component Absolute Error', fontdict=dict(fontsize=16))
+    ax1.legend(ncol=3, prop=dict(size=14))
+    ax1.tick_params(axis='both', which='major', labelsize=14)
+
+    ax2.plot(DOMAIN, B_scalar, ':', color='black', label=rf'$\mathcal{{B}}$')
+    ax2.plot(DOMAIN, np.linalg.norm(errs, axis=1), color='black',label=r'$\|\eta\|$')
+    ax2.set_xlabel('Temporal Domain: $t \in I = [0, 1]$', fontdict=dict(fontsize=16))
+    ax2.set_ylabel(r'Error Norm', fontdict=dict(fontsize=16))
+    ax2.legend(ncol=1, prop=dict(size=14))
+    ax2.tick_params(axis='both', which='major', labelsize=14)
+
+    plt.tight_layout()
+    fig.savefig(Path(__file__).parent.parent / 'assets' / 'system-bound.pdf', bbox_inches='tight')

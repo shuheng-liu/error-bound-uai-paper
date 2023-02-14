@@ -43,8 +43,8 @@ class OperatorI:
 
         integral = psi * np.exp(-self.lmd * t)
         for _ in range(self._integral_multiplicity):
-            integral = cumulative_trapezoid_upper(integral, t, initial=0)
-            # integral = cumulative_trapezoid(integral, t, initial=0)
+            # integral = cumulative_trapezoid_upper(integral, t, initial=0)
+            integral = cumulative_trapezoid(integral, t, initial=0)
         return integral * np.exp(self.lmd * t)
 
 
