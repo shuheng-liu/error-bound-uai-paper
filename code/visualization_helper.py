@@ -11,5 +11,11 @@ def setup():
         "text.usetex": True,
         "font.family": "serif",
         "font.serif": ["Computer Modern Serif"],
+        "xtick.major.size": 0,
+        "ytick.major.size": 0,
+        "xtick.labelsize": 16,
+        "ytick.labelsize": 16,
+        "legend.framealpha": 0.0,
+        "legend.frameon": False,
     }
     plt.rcParams.update(params)

@@ -230,7 +230,6 @@ if __name__ == "__main__":
     visualization_helper.setup()
 
     try:
-        # raise FileNotFoundError()
         with open('duffing-residuals.pkl', 'rb') as f:
             rs = pkl.load(f)
         with open('duffing-bounds.pkl', 'rb') as f:
@@ -261,47 +260,44 @@ if __name__ == "__main__":
             pkl.dump(us, f)
     
 
-    epsilons = np.linspace(-0.9, 0.9, 14)
-    fig, axes = plt.subplots(3, 5, figsize=(12, 3.8), dpi=70)
+    epsilons = np.linspace(-0.9, 0.9, 8)
+    fig, axes = plt.subplots(3, 3, figsize=(6, 3.5), dpi=70)
     axes = axes.flatten()
     assert len(epsilons) == len(axes) - 1
 
     for ax, epsilon in zip(axes, epsilons):
-        _, v = get_u_v(epsilon, us)
-        ax.plot(DOMAIN[IDX], v(DOMAIN[IDX]), label='RKF45')
         for i in range(len(us)):
             u, _ = get_u_v(epsilon, us[: i + 1])
             ax.plot(DOMAIN[IDX], u(DOMAIN[IDX]), ':', label=rf'deg 0$\sim${i}' if i > 0 else 'deg 0')
+        _, v = get_u_v(epsilon, us)
+        ax.plot(DOMAIN[IDX], v(DOMAIN[IDX]), label='RKF45')
         ax.text(0.05, 0.1, rf'$\varepsilon={epsilon:.3f}$', fontdict=dict(fontsize=16), transform=ax.transAxes)
         ax.tick_params(axis='both', which='major', labelsize=14)
         ax.tick_params(axis='x', which='major', pad=0)
-        ax.tick_params(axis='y', which='major', pad=0)
+        ax.tick_params(axis='y', which='major', pad=2)
         ax.grid(visible=False)
         ax.set_xticks([0, TMAX / 2, TMAX], labels=['0', '$t$', f'{TMAX}'])
-    axes[-2].legend(ncol=2, loc=(1.14, 0.05), borderaxespad=0, handletextpad=0.8, columnspacing=1.0)
+    axes[-2].legend(prop=dict(size=12), ncol=2, loc=(1.0, -0.1), borderaxespad=0, handletextpad=0.0, columnspacing=0.1)
     axes[-1].remove()
-    plt.subplots_adjust(wspace=0.15, hspace=0.25, left=0.04, bottom=0.05, right=0.99, top=.99)
+    plt.subplots_adjust(wspace=0.3, hspace=0.25, left=0.075, bottom=0.05, right=1.00, top=.99)
     fig.savefig(Path(__file__).parent.parent / 'assets' / 'duffing-solution.pdf', bbox_inches=0)
 
-    fig, axes = plt.subplots(3, 5, figsize=(12, 3.8), dpi=70)
+    fig, axes = plt.subplots(3, 3, figsize=(6, 3.5), dpi=70)
     axes = axes.flatten()
     assert len(epsilons) == len(axes) - 1
     for ax, epsilon in zip(axes, epsilons):
-        u, v = get_u_v(epsilon, us)
         accumulated_bounds = accumulate(bound * abs(epsilon) ** i for i, bound in enumerate(bounds))
-        ax.plot(DOMAIN[IDX], np.abs(u(DOMAIN[IDX]) - v(DOMAIN[IDX])), label='abs err')
-
         for i, ab in enumerate(accumulated_bounds):
             ax.plot(DOMAIN[IDX], ab[IDX], ':', label=rf'Up to $\mathcal{{B}}_{i}$')
+        u, v = get_u_v(epsilon, us)
+        ax.plot(DOMAIN[IDX], np.abs(u(DOMAIN[IDX]) - v(DOMAIN[IDX])), label='abs err')
         ax.text(0.05, 0.75, rf'$\varepsilon={epsilon:.3f}$', fontdict=dict(fontsize=16), transform=ax.transAxes)
         ax.tick_params(axis='both', which='major', labelsize=14)
         ax.tick_params(axis='x', which='major', pad=0)
-        ax.tick_params(axis='y', which='major', pad=0)
+        ax.tick_params(axis='y', which='major', pad=2)
         ax.grid(visible=False)
         ax.set_xticks([0, TMAX / 2, TMAX], labels=['0', '$t$', f'{TMAX}'])
-    axes[-2].legend(ncol=2, loc=(1.14, 0.05), borderaxespad=0, handletextpad=0.8, columnspacing=1.0)
+    axes[-2].legend(prop=dict(size=12), ncol=2, loc=(1.0, -0.1), borderaxespad=0, handletextpad=0.0, columnspacing=0.1)
     axes[-1].remove()
-    plt.subplots_adjust(wspace=0.25, hspace=0.25, left=0.04, bottom=0.05, right=0.99, top=.99)
+    plt.subplots_adjust(wspace=0.3, hspace=0.25, left=0.075, bottom=0.05, right=1.00, top=.99)
     fig.savefig(Path(__file__).parent.parent / 'assets' / 'duffing-error.pdf', bbox_inches=0)
-
-    plt.show()

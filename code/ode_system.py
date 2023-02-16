@@ -130,20 +130,20 @@ if __name__ == "__main__":
     B_scalar = cond_P * I_norm
     assert (np.linalg.norm(errs, axis=1) <= B_scalar).all()
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, dpi=70, figsize=(6, 6), height_ratios=[4, 2])
+    fig, (ax1, ax2) = plt.subplots(2, 1, dpi=70, figsize=(6, 4), height_ratios=[5, 2])
     colors = ['blue', 'red', 'orange', 'magenta', '0.3', 'green']
     for i in range(6):
-        ax1.plot(DOMAIN, abs(B_vector)[:, i], ':', color=colors[i], label=rf'$\mathbf{{\mathcal{{B}}}}_{i+1}$', zorder=100+i)
+        ax1.plot(DOMAIN, abs(B_vector)[:, i], ':', color=colors[i], zorder=100+i, label=rf'$\mathbf{{\mathcal{{B}}}}_{i+1}$')
         ax1.plot(DOMAIN, abs(errs)[:, i], color=colors[i], label=rf'$|\eta_{i+1}|$')
-    ax1.set_ylabel(r'Component Absolute Error', fontdict=dict(fontsize=16))
-    ax1.legend(ncol=3, prop=dict(size=14))
+    ax1.set_ylabel(r'Component Abs. Err.', fontdict=dict(fontsize=16))
+    ax1.legend(ncol=6, prop=dict(size=14), borderaxespad=0, handletextpad=0.2, columnspacing=0.4)
     ax1.tick_params(axis='both', which='major', labelsize=14)
 
     ax2.plot(DOMAIN, B_scalar, ':', color='black', label=rf'$\mathcal{{B}}$')
     ax2.plot(DOMAIN, np.linalg.norm(errs, axis=1), color='black',label=r'$\|\eta\|$')
     ax2.set_xlabel('Temporal Domain: $t \in I = [0, 1]$', fontdict=dict(fontsize=16))
-    ax2.set_ylabel(r'Error Norm', fontdict=dict(fontsize=16))
-    ax2.legend(ncol=1, prop=dict(size=14))
+    ax2.set_ylabel(r'Err. Norm', fontdict=dict(fontsize=16))
+    ax2.legend(ncol=2, prop=dict(size=14), loc='upper left', handletextpad=0.2, columnspacing=0.4)
     ax2.tick_params(axis='both', which='major', labelsize=14)
 
     plt.tight_layout()
