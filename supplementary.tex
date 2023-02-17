@@ -1,4 +1,4 @@
-\documentclass[accepted]{uai2023}
+\documentclass[]{uai2023}
 \usepackage[american]{babel}
 
 \usepackage[utf8]{inputenc}
@@ -77,6 +77,9 @@
 
 \appendix
 \section{PROOF OF PROPOSITIONS IN SECTION \ref{section:single-linear-ode-with-constant-coefficients}}
+In this part, we first discuss the properties of the operator $\I_{\lambda}$, which is defined in the main paper.
+We then use these properties to prove relevant statements regarding Alg. \ref{alg:single-linear-ode-constant-coeff-loose} and Alg. \ref{alg:single-linear-ode-constant-coeff-tight} in Section \ref{section:single-linear-ode-with-constant-coefficients} of the main paper.
+
 \subsection{Properties OF INVERSE OPERATOR $\I_{\lambda} = \L_{\lambda}^{-1}$} \label{appendix:inverse-operator}
 
     Let $\L_{\lambda}$ ($\lambda \in \mathbb{C}$) be the differential operator $\L_{\lambda}\phi := \dt{\phi} - \lambda \phi$. The inverse of $\L_\lambda \phi = \psi$ is given by $\phi = \I_{\lambda} \psi$ if $\phi(0)=0$, where 
@@ -175,8 +178,9 @@ By the monotonicity of operator $\I_{\Re{\lambda}}$, there is $\I_{\Re{\lambda}}
 which proves Eq. \ref{eq:loose-bound-to-prove}.
 
 \section{PROOF OF PROPOSITIONS IN SECTION \ref{section:system-of-linear-odes-with-constant-coefficients}}
-    Consider the problem \ref{eq:linear-system-master} in main paper. 
+    In this part, we prove relevant statements regarding Alg. \ref{alg:system-bound} in Section \ref{section:single-linear-ode-with-constant-coefficients} of the main paper.
 
+    Consider the problem \ref{eq:linear-system-master} in main paper. 
     The error $\pmb{\Err}$ of the network solution $\vect{u}$ satisfies the equation
     \begin{equation}\label{eq:system-err-equation}
         \dt{} \pmb{\Err} + A\pmb{\Err} = \vect{r}(t) \quad \text{s.t.} \quad \pmb{\Err}(t=0) = \vect{0}
@@ -309,6 +313,6 @@ which proves Eq. \ref{eq:loose-bound-to-prove}.
         &=\mathrm{cond}(P)\left\|\pmb{\I}\Big[\|\vect{r}(t)\|\vect{1}\Big]\right\| 
     \end{align}
 
-    \bibliography{references}
+    % \bibliography{references}
 
 \end{document}
