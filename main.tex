@@ -134,7 +134,7 @@
 
 \subsection{INITIAL AND BOUNDARY CONDITIONS}\label{section:initial-and-boundary-conditions}
     In order for a neural network to satisfy initial or boundary conditions, we apply a technique which we call \textit{parametrization}. 
-    As an intuitive example, the parameterization $u(t) = (1 - e^{-t}) \Net(t) + v(0)$ guarantees that $u(t)$ satisfies the initial condition $u(0)=v(0)$ regardless of the network $\Net(\cdot)$.
+    As an intuitive example, the parametrization $u(t) = (1 - e^{-t}) \Net(t) + v(0)$ guarantees that $u(t)$ satisfies the initial condition $u(0)=v(0)$ regardless of the network $\Net(\cdot)$.
     This does not affect the capability of $\Net(\cdot)$ to learn any solution.
 
     The parametrization is more complicated for higher-order ODEs and most PDEs and has been extensively studied by \cite{lagaris1998artificial}, \cite{lagaris2000neural}, \cite{mcfall2009artificial}, \cite{lagari2020systematic}, and \cite{sukumar2021exact}.
@@ -189,8 +189,8 @@
     \cite{sirignano2018dgm} shows that for a class of quasi-linear parabolic PDEs, a neural network with a single hidden layer and sufficiently many hidden units can arbitrarily approximate the exact solutions.
     \cite{guo2022energy} proposed what they call an energy-based \textit{constitutive relation error} bound for elasticity problems.
 
-    \cite{de2022errorhyperbolic} derives a rigorous error bound for ReLU networks on parametric hyperbolic conservation laws.
-    \cite{de2022errorkolmogorov} 
+    \cite{de2022errorhyperbolic} derives an error bound for ReLU networks on parametric hyperbolic conservation laws.
+    \cite{de2022errorkolmogorov} shows that there exists PINNs with arbitrarily small residual for Kolmogorov PDEs.
     \cite{de2022generic} derives an error bound for operator learning with PINNs.
     The works of \citeauthor{de2022errorhyperbolic} mentioned above do not bound the error of any given network.
     Instead, they mathematically proved the existence of a network with errors below specified bound, under certain assumptions of network architecture, including width, depth, and activation functions. 
@@ -674,7 +674,7 @@
     Depending on whether the problem is an ODE or PDE, a network can have a single input $t$ or two inputs $(x, y)$.
     The activation function is $\tanh$. 
     Unless otherwise noted, the training domain is $I=[0, 1]$ for ODEs and $\Omega=[0,1]^2$ for PDEs. 
-    We use a \texttt{pytorch} Adam optimizer with default hyperparameters to train networks for 1000 epochs.
+    We use a \texttt{PyTorch} Adam optimizer with default hyperparameters to train networks for 1000 epochs.
 
     Notice that we list these configurations only for reproducibility of visualizations. 
     Our error bounding algorithm works under any other configurations.
@@ -769,13 +769,13 @@
     }
     subject to the boundary constraints of $v(x, \pm1) =2x\pm 3$ and $v(\pm 1, y) = 3y \pm 2$. 
     The exact (manufactured) solution is given by $v(x, y) = 2x + 3y$.
-    The characteristic curves are integral curves {\small $\mathcal{C}: \begin{cases*} x'(s) = -x - y \\[-0.25em] y'(s) = x - y \end{cases*}$}, which is sovled by {\small $\mathcal{C}: \begin{cases*} x(s) = R_0 e^{-s} \cos (s+\theta_0)\\[-0.25em] y(s) = R_0 e^{-s} \sin(s + \theta_0) \end{cases*}$}, where $R_0 = \sqrt{x_0^2+y_0^2}$ and $\theta_0 = \mathrm{atan2}(y_0, x_0)$ are constants determined by the starting point $(x_0, y_0) \in \Gamma = \partial \Omega$.
+    The characteristic curves are integral curves {\small $\mathcal{C}: \begin{cases*} x'(s) = -x - y \\[-0.25em] y'(s) = x - y \end{cases*}$}, which is solved by {\small $\mathcal{C}: \begin{cases*} x(s) = R_0 e^{-s} \cos (s+\theta_0)\\[-0.25em] y(s) = R_0 e^{-s} \sin(s + \theta_0) \end{cases*}$}, where $R_0 = \sqrt{x_0^2+y_0^2}$ and $\theta_0 = \mathrm{atan2}(y_0, x_0)$ are constants determined by the starting point $(x_0, y_0) \in \Gamma = \partial \Omega$.
     See Figure \ref{fig:characteristics} for visualization.
 
     Since we know the analytical expression of the characteristic curves, we can apply Alg. \ref{alg:linear-first-order-pde-general} to estimate the bound on each characteristic curves. 
     We choose $16$ characteristic curves with starting points $A$, $B$, \dots, $P$, equidistantly placed on the boundary (Fig. \ref{fig:characteristics}a). 
     We plot the absolute error and the computed error bound along these characteristic curves in Fig. \ref{fig:pde-error-bound}.
-    It can be seen that aboslute error lies strictly within the bounds.
+    It can be seen that absolute error lies strictly within the bounds.
 \subsubsection{PDE Error Bound Evaluation Using Alg. \ref{alg:linear-first-order-pde-constant}}
     Consider the following PDE 
     {
