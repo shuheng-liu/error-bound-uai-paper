@@ -73,10 +73,10 @@
 
 \begin{abstract}
     Neural networks are universal approximators and are studied for their use in solving differential equations.
-    However, a major criticism lies in that there lacks estimation of error bounds for the obtained solutions.
-    This paper proposes a technique to rigorously evaluate the error bound of Physics-Informed Neural Networks (PINNs) on common classes of ODEs and PDEs.
-    The error bound is based purely on equation structure and equation residuals, and does not depend on assumptions of how well the networks are trained.
-    The technique evaluates the error bound in an efficient manner, and can be further improved to provide tighter bounds at the cost of longer run time.
+    However, a major criticism lies in the lack of error bounds for obtained solutions.
+    This paper proposes a technique to rigorously evaluate the error bound of Physics-Informed Neural Networks (PINNs) on most linear ordinary differential equations (ODEs), certain nonlinear ODEs, and first-order linear partial differential equations (PDEs).
+    The error bound is based purely on equation structure and residual information, and does not depend on assumptions of how well the networks are trained.
+    The technique evaluates the error bound in an efficient manner, and has certain variants that provide tighter bounds at the cost of longer run time.
 \end{abstract}
 
 \section{Introduction}
@@ -98,7 +98,7 @@
     Section \ref{section:symbols-and-notations} introduces the symbols and notations adopted in this paper.
     Section \ref{section:literature-review} reviews the literature of emerging areas of research that are relevant to solving DEs with neural networks.
     Section \ref{section:existing-work} explains existing effort to bounding the error of neural netowrk DE solutions.
-    Section \ref{section:error-bound-for-ode} and Section \ref{section:error-bound-for-pde} proposed various algorithms for error bound of ODEs and PDEs respectively.
+    Section \ref{section:error-bound-for-ode} and \ref{section:error-bound-for-pde} propose various algorithms for error bound of ODEs and PDEs respectively.
     Section \ref{section:experiments} uses method of manufactured solution to verify the validity of each error bounding algorithm and provides visualization of the tightness of the bounds.
 
 \section{Symbols and Notations} \label{section:symbols-and-notations}
@@ -209,7 +209,6 @@
     Its neural network solution $u$ satisfies $\L u(t) = f(t) + r(t)$. 
     Since error $\Err := u - v$, there is
     {   
-        \vspace{-0.5em}
         \small
         \begin{equation} \label{eq:linear-error-master}
             \L \Err(t) = r(t).
@@ -217,7 +216,6 @@
     }
     With the assumption in Section \ref{section:initial-and-boundary-conditions} that $u$ satisfies the initial conditions at $t=0$, there is
     {
-        \vspace{-0.5em}
         \small
         \begin{equation} \label{eq:linear-error-initial-condition}
             \Err(0) = 0, \quad \dt{}{}\Err(0) = 0, \quad \dnt{2}{}\Err(0) = 0, \quad \dots 
@@ -226,7 +224,6 @@
     With initial conditions \ref{eq:linear-error-initial-condition} known, a unique inverse transform $\L^{-1}$to $\L$ exists. 
     Applying $\L^{-1}$ to Eq. \ref{eq:linear-error-master}, there is 
     {
-        \vspace{-0.5em}
         \small
         \begin{equation}\label{eq:linear-error-inverse-master}
             \Err(t) = \L^{-1} r(t).
@@ -264,7 +261,6 @@
         \begin{algorithmic}
             \Require $\L$ is stable, and $t_\ell \in I$ for all $\ell$
             \Ensure $\left|\Err(t_\ell)\right| \leq \Bound(t_\ell)$ for all $\ell$
-            % \vspace{0.5em}
             \State $\{\lambda_j\}_{j=1}^{n} \gets$ numerical roots of $\lambda^n+a_{n-1}\lambda^{n-1}+\dots=0$ 
             \State \textbf{assert} $\lambda_j \leq 0$ for $1 \leq j \leq n$ 
             \State $Z, C \gets 0, 1$
@@ -336,7 +332,7 @@
    In general, the coefficients for $\L$ can be functions of $t$. Namely, $\L = \frac{\mathrm d^n}{\mathrm d t^n} +  \sum_{j=0}^{n-1}a_j(t)\frac{\mathrm d^j}{\mathrm d t^j}$.
    Similar to Eq. \ref{eq:single-linear-ode-characteristic-polynomial-factorization}, there are characteristic roots $\{\lambda_{j}(t)\}_{j=1}^{n}$ as functions of $t$,
     {
-        \smaller
+        \small
         \begin{equation*} \label{eq:functional-factorization}
             \lambda^n + a_{n-1}(t)\lambda^{n-1} + \dots + a_0(t) = \prod_{j=1}^{n}(\lambda - \lambda_j(t)).
         \end{equation*}
@@ -349,7 +345,6 @@
     Consider a system of linear ODEs with constant coefficients 
     {
         \small
-        \vspace{-0.75em}
         \begin{equation}\label{eq:linear-system-master}
             \frac{\mathrm{d}}{\mathrm{d}t}\vect{v} + A\vect{v} = \vect{f}(t)
         \end{equation}
@@ -474,13 +469,8 @@
             &\L v_3 + \frac{k(k-1)}{2} v_0^{k-2}v_1^2 + k v_0^{k-1}v_2 &&= 0 \label{eq:expansion-epsilon-3} \\[-1em]
             &\vdots &&\phantom{=}\,\,\,\,\vdots\nonumber
         \end{alignat}
-        % \vspace{-2em}
-        % \begin{equation*}
-        %     \vdots
-        % \end{equation*}
     }
 
-    \vspace{-1em}
     For $\varepsilon = 0$, Eq. \ref{eq:nonlinear-solution-expansion} is reduced to $v_0(t)$, which solves the linear problem $\L v=f$. 
     Also, only $v_0(t)$ is subject to the original initial conditions at $t=0$, while other components, $v_1$, $v_2$, \dots, have initial conditions of $0$ at $t=0$.
 
@@ -489,10 +479,10 @@
         \setlength{\parskip}{0pt}
         The above system can be solved in a \textit{sequential} manner, either analytically or using neural networks,
         \begin{enumerate}
-            \item \vspace{-0.25em}Eq. \ref{eq:expansion-epsilon-0} is linear in $v_0$ and can be solved first. 
-            \item \vspace{-0.25em}With $v_0$ known, Eq. \ref{eq:expansion-epsilon-1} is linear in $v_1$ and can be solved for $v_1$. 
-            \item \vspace{-0.25em}Similarly, with $v_0$ and $v_1$ known, Eq. \ref{eq:expansion-epsilon-2} is linear in $v_2$ and can be solved for $v_2$.
-            \item \vspace{-0.25em}The process can be repeated for Eq. \ref{eq:expansion-epsilon-3} and beyond. Only a linear ODE is solved each time.
+            \item Eq. \ref{eq:expansion-epsilon-0} is linear in $v_0$ and can be solved first. 
+            \item With $v_0$ known, Eq. \ref{eq:expansion-epsilon-1} is linear in $v_1$ and can be solved for $v_1$. 
+            \item Similarly, with $v_0$ and $v_1$ known, Eq. \ref{eq:expansion-epsilon-2} is linear in $v_2$ and can be solved for $v_2$.
+            \item The process can be repeated for Eq. \ref{eq:expansion-epsilon-3} and beyond. Only a linear ODE is solved each time.
         \end{enumerate}
         To solve the system with PINNs, we approximate exact solutions $\left\{v_j(t)\right\}_{j=1}^{\infty}$ with neural network solutions $\left\{u_j(t)\right\}_{j=0}^{J}$ trained sequentially on Eq. \ref{eq:expansion-epsilon-0}, Eq. \ref{eq:expansion-epsilon-1}, and beyond. 
         In practice, we only consider components up to order $J$ to avoid the infinity in the expansion \ref{eq:nonlinear-solution-expansion}. 
@@ -532,9 +522,7 @@
         \begin{algorithmic}
             \Require $t_\ell \in I$, and $|\varepsilon_\ell|$ to be small (ideally $|\varepsilon_\ell| \ll 1$)
             \Ensure $\Err(t_\ell; \varepsilon_\ell) \leq \Bound(t_\ell; \varepsilon_\ell)$ 
-            % \hspace{0.5em}
 
-            % \State $p_0 \gets \big(\L u_0 = f, \text{subject to initial conditions}\big)$
             \State $u_0, r_0, \gets$ network solution, residual of $\L u_0 = f$
             \State $\left\{\Bound_{0}(t_\ell)\right\}_{\ell=1}^L \gets$ bound of $\left|\L^{-1}r_0\right|$ at $\left\{t_\ell\right\}_{\ell=1}^L$
             \For{$j \gets 1 \dots J$} 
@@ -559,7 +547,7 @@
     { 
         \small
         \begin{equation}\label{eq:pde-master}
-            a(x, y) \partial_x v + b(x, y) \partial_y v + c(x, y)v = f(x, y)
+            a(x, y) \px{v} + b(x, y) \py{v} + c(x, y)v = f(x, y)
         \end{equation}
     }
     with Dirichlet boundary constraints defined on $\Gamma \subset \partial \Omega$,
@@ -598,14 +586,14 @@
     {
         \small
         \begin{equation*}
-            a(x, y)\partial_x v + b(x, y)\partial_y v = x'(s)\partial_x v  + y'(s)\partial_y v = v'
+            a(x, y)\px{v} + b(x, y)\py{v} = x'(s)\px{v}  + y'(s)\py{v} = v'(s)
         \end{equation*}
     }
     Hence, the original PDE can be reformulated as an ODE
     {
         \small
         \begin{equation}
-            v' + c(s)v = f(s) \quad \text{s.t.} \quad v(0) = g(x_0, y_0)
+            v'(s) + c\big(x(s), y(s)\big)v(s) = f(s) \quad \text{s.t. } v(0) = g(x_0, y_0)
         \end{equation}
     }
 
@@ -628,10 +616,8 @@
             \Require $c(x, y) \neq 0$ for all $(x, y) \in \Omega$
             \Ensure $|\Err(x, y)| \leq B$ for all $(x, y) \in \Omega$
 
-            % \vspace{0.5em}
             \State $\left\{(x_k, y_k)\right\}_{k} \gets$ sufficiently dense mesh grid over $\Omega$
             \State $\displaystyle B \gets \max_{k} \left| \frac{r(x_k, y_k)}{c(x_k, y_k)}\right|$
-            \vspace{-0.25em}
             \State \textbf{return} $B$
         \end{algorithmic}
     \end{algorithm}
@@ -647,15 +633,11 @@
             \Require Integral curve of the vector field $\big[a(x, y)\,\, b(x, y)\big]^T$ passing through any point $(x_\ell, y_\ell) \in \Omega$ is solvable
             \Ensure $|\Err(x_\ell, y_\ell)| \leq \Bound(x_\ell, y_\ell)$ for all $\ell$
 
-            % \vspace{0.5em} % no need to skip since the \begin{cases}\end{cases} takes vertical space
             \State $\mathcal{C}_{\text{gen}} \gets $ general solution (integral curves) to {\smaller $\begin{cases}x'(s) = a(x, y) \\ y'(s) = b(x, y)\end{cases}$}
-            \vspace{-1em} % move this line up a bit
             \For{$\ell \gets 1 \dots L$}
                 \State $\mathcal{C}:(x(s), y(s))\gets$ instance of $\mathcal{C}_{\text{gen}}$ passing through $(x_\ell, y_\ell)$
                 \State $s^* \gets$ solution to $x(s) = x_\ell,\, y(s)=y_\ell$
-                \vspace{-0.25em}
                 \State $\displaystyle \Bound(x_\ell, y_\ell) \gets e^{c(s^*)}\int_{0}^{s^*}r(x(s), y(s)) e^{-c(x(s),y(s))\,s}\mathrm{d}s$ 
-                \vspace{-0.5em}
             \EndFor
             \State \textbf{return} $\left\{\Bound(x_\ell, y_\ell)\right\}_{\ell=1}^{L}$
         \end{algorithmic}
@@ -664,13 +646,13 @@
 %     TODO
 
 \section{RELEVANT EXPERIMENTS}\label{section:experiments}
-    In this section, we perform experiments on equations with (known) manufactured solutions using the \textit{NeuroDiffEq} library \citep{chen2020neurodiffeq}, which provides convenient tools for training PINNs. 
+    In this section, we perform experiments on equations with manufactured solutions using the \textit{NeuroDiffEq} library \citep{chen2020neurodiffeq}, which provides convenient tools for training PINNs. 
 
     First, we train networks to solve equations and collect their residual information $r$.
     Then, we apply Alg. \ref{alg:single-linear-ode-constant-coeff-loose}--\ref{alg:linear-first-order-pde-general} (where applicable) to derive error bounds using only residual information $r$ and equation structure, characterized by its differential operator $\mathcal {D}$. 
     Lastly, we show that the absolute error strictly falls within the bounds, regardless of how well the networks are trained.
 
-    Throughout this section, we always use networks with 2 hidden layers each consisting 32 hidden units and a single output unit.
+    Throughout this section, we always use networks with 2 hidden layers each consisting of 32 hidden units and a single output unit.
     Depending on whether the problem is an ODE or PDE, a network can have a single input $t$ or two inputs $(x, y)$.
     The activation function is $\tanh$. 
     Unless otherwise noted, the training domain is $I=[0, 1]$ for ODEs and $\Omega=[0,1]^2$ for PDEs. 
@@ -687,9 +669,8 @@
     We pick $f(t) =2t^2+8t+7$, $g(t) = t^2+t+3$, and $h(t)=1-2t$, so that the manufactured solution is $v(t) = t^2 + t + 1$ for all three equations.
     Fig. \ref{fig:2nd-order-bound} shows that both $\Bound_{loose}$ (Alg. \ref{alg:single-linear-ode-constant-coeff-loose}) and $\Bound_{tight}$ (Alg. \ref{alg:single-linear-ode-constant-coeff-tight}) strictly bounds the absolute error.
     
-    \begin{figure}[!htp]
+    \begin{figure}[!ht]
         \centering
-        \vspace{-1em}
         \includegraphics[width=\linewidth]{assets/2nd-order.pdf}
         \caption{\small
             Loose bound (Alg. \ref{alg:single-linear-ode-constant-coeff-loose}) and tight bound (Alg. \ref{alg:single-linear-ode-constant-coeff-tight}) for 3 second-order linear ODE with constant coefficients.
@@ -704,11 +685,11 @@
         We pick $A = PJP^{-1}$ where {\small $J=\begin{pmatrix}J_1\\[-0.75ex]&J_2\\[-0.75ex]&&J_3\end{pmatrix}$} with {\small $J_1 = \begin{pmatrix} 4&1\\[-0.75ex]&4&1\\[-0.75ex]&&4\\[-0.5ex]\end{pmatrix}$, $J_2 = \begin{pmatrix} 3&1\\[-0.75ex]&3\\[-0.5ex]\end{pmatrix}$ }, $J_3=2$, and $P$ is a random orthogonal matrix.
     \endgroup
 
-    We pick the initial conditions to be $\vect{v}(0) = P(0\, 0\, 1\, 0\, 1\, 1)^{T}$ and the forcing function to be $\vect{f}(t) = P(\cos t + 4 \sin t  + \ln(1+t),\, \frac{1}{1+t} + 4 \ln(1+t) + (t+1),\, 4t + 5,\, 2t + 3t^2 + e^t,\, 4 e^t,\, 2 \cos t - \sin t )^T$, so that the manufactured exact solution is $\vect{v}(t) = P ( \sin t,\, \ln(t + 1),\, t + 1,\, t^2,\, e^t,\, \cos t)^T$.
+    We pick the initial conditions to be {\small $\vect{v}(0) = P(0\, 0\, 1\, 0\, 1\, 1)^{T}$} and the forcing function to be {\small $\vect{f}(t) = P(\cos t + 4 \sin t  + \ln(1+t),\, \frac{1}{1+t} + 4 \ln(1+t) + (t+1),\, 4t + 5,\, 2t + 3t^2 + e^t,\, 4 e^t,\, 2 \cos t - \sin t )^T$}, so that the manufactured exact solution is {\small $\vect{v}(t) = P ( \sin t,\, \ln(t + 1),\, t + 1,\, t^2,\, e^t,\, \cos t)^T$}.
 
-    After obtaining the residual information $\vect{r}(t)=\frac{\mathrm d}{\mathrm d t}\vect{u}(t) + A\vect{u}(t) - \vect{f}(t)$, we apply Alg. \ref{alg:system-bound} to obtain componentwise bound and norm bound of $\pmb{\Err} = \vect{u}-\vect{v}$. See Fig. \ref{fig:system-bound}. It is shown in Fig. \ref{fig:system-bound} that the bounds hold true over the domain.
+    After obtaining the residual information {\small $\vect{r}(t)=\frac{\mathrm d}{\mathrm d t}\vect{u}(t) + A\vect{u}(t) - \vect{f}(t)$}, we apply Alg. \ref{alg:system-bound} to obtain componentwise bound and norm bound of {\small $\pmb{\Err} = \vect{u}-\vect{v}$}. See Fig. \ref{fig:system-bound}. It is shown in Fig. \ref{fig:system-bound} that the bounds hold true over the domain.
 
-    \begin{figure}[!htp]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[width=\linewidth]{assets/system-bound.pdf}
         \caption{\small \textit{Componentwise} bound (upper) and \textit{norm} bound (lower) for linear ODE system with constant coefficients}\label{fig:system-bound}
@@ -716,23 +697,28 @@
 % \subsection{LINEAR ODE SYSTEM WITH NONCONSTANT COEFFICIENTS -- NONHARMONIC OSCILLATOR} \label{section:experiment-nonharmonic-oscillator}
 \subsection{NONLINEAR ODE -- DUFFING EQUATION} \label{section:experiment-duffing}
     In this part, we consider a Duffing oscillator, which is characterized by the following $2$nd order nonlinear ODE:
-    \begin{equation}\label{eq:duffing}
-        \frac{\mathrm{d}^2 v}{\mathrm{d}t^2} + 3 \frac{\mathrm{d}v}{\mathrm{d}t} + 2v +\varepsilon v^3 = \cos t ,
-    \end{equation}
+    {
+        % \small
+        \begin{equation}\label{eq:duffing}
+            \frac{\mathrm{d}^2 v}{\mathrm{d}t^2} + 3 \frac{\mathrm{d}v}{\mathrm{d}t} + 2v +\varepsilon v^3 = \cos t ,
+        \end{equation}
+    }
     under the initial conditions $v(0) = 1$ and $v'(0) = 1$, where $\varepsilon$ controls the nonlinearity of the equation. Using Alg. \ref{alg:nonlinear-iterative}, we solve the equation on $I=[0, 2]$ for linspaced $\varepsilon \in (-0.9, 0.9)$ using neural networks and bound the errors. The input $J$ to Alg. \ref{alg:nonlinear-iterative} is chosen to be $6$. Namely, we expand the solution and bound components from degree $0$ to $6$.
 
     The analytical solution to Eq. \ref{eq:duffing} is complicated. Hence, we use the RKF4(5) method to compute numerical solutions that are close enough to exact solutions for visualization purposes. See Fig. \ref{fig:duffing-solution} for network solutions compared against RKF4(5) and Fig. \ref{fig:duffing-error} for error bounds compared against true absolute error.
-    \begin{figure}[!htp]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[width=\linewidth]{assets/duffing-solution.pdf}
         \caption{\small RKF45 and Network Solutions (max-degree 0$\sim$6) to Duffing equation \ref{eq:duffing} for $\varepsilon \in (-0.9, 0.9)$}\label{fig:duffing-solution}
-        \vspace{1em}
+    \end{figure}
+    \begin{figure}[!ht]
+        \centering
         \includegraphics[width=\linewidth]{assets/duffing-error.pdf}
         \caption{\small True Error vs. error bound (max-degree 0$\sim$6) of neural network solution to Duffing Equation \ref{eq:duffing} for $\varepsilon \in (-0.9, 0.9)$}\label{fig:duffing-error}
     \end{figure}
 
 \subsection{LINEAR PDE SYSTEM WITH NONCONSTANT COEFFICIENTS } \label{section:experiment-attractor}
-    \begin{figure}[!htp]
+    \begin{figure}[!ht]
         \centering
         \subfloat[\centering \small $\mathcal{C}: \begin{cases*} x' = -x - y \\ y' = x - y \end{cases*}$]{{\includegraphics[width=0.50\linewidth]{assets/characteristics.pdf}}}
         \subfloat[\centering \small $\mathcal{C}: \begin{cases*} x' = x^2 + y^2 + 1 \\ y' = x^2 - y^2 + 2 \end{cases*}$]{{\includegraphics[width=0.49\linewidth]{assets/unsolvable-characteristics.pdf}}}
@@ -744,7 +730,7 @@
     \end{figure}
 
 \subsubsection{PDE Error Bound Evaluation Using Alg. \ref{alg:linear-first-order-pde-general}}
-    \begin{figure}[!htp]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[width=\linewidth]{assets/pde-error-bound.pdf}
         \caption{
@@ -753,23 +739,18 @@
             These characteristic curve start at points $A$ through $P$ as shown in Fig. \ref{fig:characteristics}a.
             The blue solid curves are absolute error along the characteristic curves and red dotted curves are corresponding bounds.
         }\label{fig:pde-error-bound}
-        \includegraphics[width=\linewidth]{assets/pde-constant-bound.pdf}
-        \caption{
-            \small
-            Constant bound $B$, computed using Alg. \ref{alg:linear-first-order-pde-constant}, and max absolute error over domain at different epochs of training.
-        }\label{fig:pde-constant-bound}
     \end{figure}
 
     We try to solve the following first-order linear PDE,
     {
         \small
         \begin{equation} \label{eq:attractor}
-            (-x -y) \partial_x v + (x - y) \partial_y v + v = 3x - 2y \text{ in } \Omega=[-1, 1]^2,
+            (-x -y) \px{v} + (x - y) \py{v} + v = 3x - 2 y
         \end{equation}
     }
-    subject to the boundary constraints of $v(x, \pm1) =2x\pm 3$ and $v(\pm 1, y) = 3y \pm 2$. 
+    in spatial domain $\Omega=[-1, 1]^2$, subject to the boundary constraints of $v(x, \pm1) =2x\pm 3$ and $v(\pm 1, y) = 3y \pm 2$. 
     The exact (manufactured) solution is given by $v(x, y) = 2x + 3y$.
-    The characteristic curves are integral curves {\small $\mathcal{C}: \begin{cases*} x'(s) = -x - y \\[-0.25em] y'(s) = x - y \end{cases*}$}, which is solved by {\small $\mathcal{C}: \begin{cases*} x(s) = R_0 e^{-s} \cos (s+\theta_0)\\[-0.25em] y(s) = R_0 e^{-s} \sin(s + \theta_0) \end{cases*}$}, where $R_0 = \sqrt{x_0^2+y_0^2}$ and $\theta_0 = \mathrm{atan2}(y_0, x_0)$ are constants determined by the starting point $(x_0, y_0) \in \Gamma = \partial \Omega$.
+    The characteristic curves are integral curves {\small $\mathcal{C}: \begin{cases*} x'(s) = -x - y \\[-0.25em] y'(s) = x - y \end{cases*}$}, which is solved by {\small $\begin{cases*} x(s) = R_0 e^{-s} \cos (s+\theta_0)\\[-0.25em] y(s) = R_0 e^{-s} \sin(s + \theta_0) \end{cases*}$}, where $R_0 = \sqrt{x_0^2+y_0^2}$ and $\theta_0 = \mathrm{atan2}(y_0, x_0)$ are constants determined by the starting point $(x_0, y_0) \in \Gamma = \partial \Omega$.
     See Figure \ref{fig:characteristics} for visualization.
 
     Since we know the analytical expression of the characteristic curves, we can apply Alg. \ref{alg:linear-first-order-pde-general} to estimate the bound on each characteristic curves. 
@@ -781,7 +762,7 @@
     {
         \small
         \begin{equation}\label{eq:hard-to-solve-characteristics}
-            (x^2+y^2+1)\partial_x v + (x^2-y^2+2)\partial_y v + (3-2x)v = f
+            (x^2+y^2+1)\px{v} + (x^2-y^2+2)\py{v} + (3-2x)v = f
         \end{equation}
     }
     over domain $\Omega = [-1, 1]^2$, where $f(x, y) = 6-4x$.
@@ -796,14 +777,14 @@
     We visualize the bound and the maximum absolute error $\max_{(x, y)\in\Omega}|\Err|$ as a function of training epochs in Fig. \ref{fig:pde-constant-bound}.
     As expected, the bound is loose, which is about 1 order of magnitude larger than the max absolute error.
     Yet, it consistently holds true for every epoch, even during early stages of training, when the network performs poorly.
-    % \begin{figure}[!htp]
-    %     \centering
-    %     \includegraphics[width=\linewidth]{assets/pde-constant-bound.pdf}
-    %     \caption{
-    %         \small
-    %         Constant bound $B$, computed using Alg. \ref{alg:linear-first-order-pde-constant}, and max absolute error over domain at different epochs of training.
-    %     }\label{fig:pde-constant-bound}
-    % \end{figure}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=\linewidth]{assets/pde-constant-bound.pdf}
+        \caption{
+            \small
+            Constant bound $B$, computed using Alg. \ref{alg:linear-first-order-pde-constant}, and max absolute error over domain at different epochs of training.
+        }\label{fig:pde-constant-bound}
+    \end{figure}
 
 \section{Conclusion}
     In this paper, we propose various error bounding algorithms for PINN solutions to certain classes of ODEs and PDEs. 
