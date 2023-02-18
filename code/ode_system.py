@@ -147,4 +147,4 @@ if __name__ == "__main__":
     ax2.tick_params(axis='both', which='major', labelsize=14)
 
     plt.tight_layout()
-    fig.savefig(Path(__file__).parent.parent / 'assets' / 'system-bound.pdf', bbox_inches='tight')
+    fig.savefig(visualization_helper.get_folder() / 'system-bound.pdf', bbox_inches='tight')

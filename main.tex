@@ -159,15 +159,15 @@
     If $\Bound$ takes on the same value $B \in \mathbb{R}^{+}$ over the domain, it can be replaced with a constant $B$.
 
     Notice that multiple bounds $\Bound$ exist for the same network solution $u$.
-    Our work uncovers several bounds in descending order of tightness, $\Bound^{(1)}(t) \leq  \Bound^{(2)}(t) \leq \dots \leq B$. Tighter bounds incur a higher computational cost, and the looser bounds (such as constant $B$) are computed faster.
+    For example, $|\Err(t)| \leq \Bound^{(1)}(t) \leq  \Bound^{(2)}(t) \leq \dots \leq B$ are bounds in decreasing order of tightness. Tighter bounds incur a higher computational cost, and looser bounds (such as constant $B$) are faster to compute.
 
 \section{LITERATURE REVIEW} \label{section:literature-review}
-    Neural networks are well-known for their universal capability in approximating functions \citep{hornik1989multilayer}. 
+    \citeauthor{hornik1989multilayer} showed that neural networks are universal function approximators. 
     \citeauthor{lagaris1998artificial} first studied the application of neural networks in solving DEs.
     The term \textit{physics-informed neural networks}, or PINNs, was first introduced by \citeauthor{raissi2019physics} to name neural networks that satisfy DEs while fitting observed data points. 
     Although we train PINNs only to solve DEs without any observed data in this work, the error-bounding algorithms we propose work for any given neural network, regardless of the training process.
 
-    \cite{flamant2020solving} and \cite{DesaiShaan2021OTLo} showed that one main advantage of neural networks over traditional numerical methods, such as FDM and FEM, is that neural networks can potentially learn the structure of the solution space and give a bundle of solutions $u(\vect{x}; \Theta)$ for different equation setup and initial/boundary conditions parameterized by $\Theta$.
+    \citeauthor{flamant2020solving} and \citeauthor{DesaiShaan2021OTLo} showed that one main advantage of neural networks over traditional numerical methods, such as FDM and FEM, is that neural networks can potentially learn the structure of the solution space and give a bundle of solutions $u(\vect{x}; \Theta)$ for different equation setup and initial/boundary conditions parameterized by $\Theta$.
     For traditional methods, a new solution must be recomputed for any slight changes in equation setup or initial/boundary conditions.
 
     Some effort has been made to redefine the objective loss function. 
@@ -195,7 +195,7 @@
     The question remaining to be answered is how to overcome optimization difficulties and find such a neural network.
 
     Our work differs from the above in that we bound the error of \textit{any} neural network regardless of finetuning, even networks with randomly initialized weights.
-    Our algorithms only depend on inputs of residual information $r$ (often used as training loss) and equations structure $\mathcal{D} v = f$.
+    Our algorithms only depend on inputs of residual information $r$, often used as training loss, and equations structure $\mathcal{D} v = f$.
     The output is a (possibly constant) function that guarantees to bound the error at any point in domain.
 
 \section{ERROR BOUND FOR ODE}  \label{section:error-bound-for-ode}

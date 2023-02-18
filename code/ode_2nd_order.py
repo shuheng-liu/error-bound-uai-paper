@@ -74,4 +74,4 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.25)
 
-    fig.savefig(Path(__file__).parent.parent / 'assets' / '2nd-order.pdf')
+    fig.savefig(visualization_helper.get_folder() / '2nd-order.pdf')

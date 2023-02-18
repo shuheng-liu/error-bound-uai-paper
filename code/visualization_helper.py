@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from pathlib import Path
+import os
 
 def setup():
     # import seaborn as sns
@@ -19,3 +21,11 @@ def setup():
         "legend.frameon": False,
     }
     plt.rcParams.update(params)
+
+
+def get_folder():
+    file_path = os.path.realpath(__file__)
+    assets_path = Path(file_path).parent.parent / 'assets'
+    assets_path.mkdir(parents=True, exist_ok=True)
+    return assets_path
+

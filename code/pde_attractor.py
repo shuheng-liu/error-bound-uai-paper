@@ -56,7 +56,7 @@ def plot_characteristics():
 
     ax.set_xlabel('$x$', fontdict=dict(fontsize=16))
     ax.set_ylabel('$y$', fontdict=dict(fontsize=16), rotation=0)
-    fig.savefig(Path(__file__).parent.parent / 'assets' / 'characteristics.pdf', bbox_inches='tight')
+    fig.savefig(visualization_helper.get_folder() / 'characteristics.pdf', bbox_inches='tight')
 
 
 def get_curve(x0, y0, s_max=10, steps=1000):
@@ -122,4 +122,4 @@ if __name__ == "__main__":
     axes[-2].remove()
     axes[-1].remove()
     plt.subplots_adjust(wspace=0.15, hspace=0.4, left=0.05, bottom=0.05, right=0.99, top=.95)
-    fig.savefig(Path(__file__).parent.parent / 'assets' / 'pde-error-bound.pdf', bbox_inches=0)
+    fig.savefig(visualization_helper.get_folder() / 'pde-error-bound.pdf', bbox_inches=0)

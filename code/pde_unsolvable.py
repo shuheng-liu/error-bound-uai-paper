@@ -38,7 +38,7 @@ def plot_characteristics():
     ax.set_xlabel('$x$', fontdict=dict(fontsize=16))
     ax.set_ylabel('$y$', fontdict=dict(fontsize=16), rotation=0)
 
-    fig.savefig(Path(__file__).parent.parent / 'assets' / 'unsolvable-characteristics.pdf', bbox_inches='tight')
+    fig.savefig(visualization_helper.get_folder() / 'unsolvable-characteristics.pdf', bbox_inches='tight')
 
 
 class ComputeMetrics(ActionCallback):
@@ -118,4 +118,4 @@ if __name__ == "__main__":
     ax.legend(prop=dict(size=14))
     ax.tick_params(axis='both', which='major', labelsize=16)
 
-    fig.savefig(Path(__file__).parent.parent / 'assets' / 'pde-constant-bound.pdf', bbox_inches='tight')
+    fig.savefig(visualization_helper.get_folder() / 'pde-constant-bound.pdf', bbox_inches='tight')

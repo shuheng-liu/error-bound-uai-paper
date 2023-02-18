@@ -280,7 +280,7 @@ if __name__ == "__main__":
     axes[-2].legend(prop=dict(size=12), ncol=2, loc=(1.0, -0.1), borderaxespad=0, handletextpad=0.0, columnspacing=0.1)
     axes[-1].remove()
     plt.subplots_adjust(wspace=0.3, hspace=0.25, left=0.075, bottom=0.05, right=1.00, top=.99)
-    fig.savefig(Path(__file__).parent.parent / 'assets' / 'duffing-solution.pdf', bbox_inches=0)
+    fig.savefig(visualization_helper.get_folder() / 'duffing-solution.pdf', bbox_inches=0)
 
     fig, axes = plt.subplots(3, 3, figsize=(6, 3.5), dpi=70)
     axes = axes.flatten()
@@ -300,4 +300,4 @@ if __name__ == "__main__":
     axes[-2].legend(prop=dict(size=12), ncol=2, loc=(1.0, -0.1), borderaxespad=0, handletextpad=0.0, columnspacing=0.1)
     axes[-1].remove()
     plt.subplots_adjust(wspace=0.3, hspace=0.25, left=0.075, bottom=0.05, right=1.00, top=.99)
-    fig.savefig(Path(__file__).parent.parent / 'assets' / 'duffing-error.pdf', bbox_inches=0)
+    fig.savefig(visualization_helper.get_folder() / 'duffing-error.pdf', bbox_inches=0)
