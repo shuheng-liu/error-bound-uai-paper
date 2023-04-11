@@ -117,8 +117,8 @@ if __name__ == "__main__":
         ], axis=0).T  # shape: n x 6
 
     # componenet-wise bound
-    I_r_abs = get_operator_matrix_output(abs(residual))
-    B_vector = I_r_abs @ abs(np.linalg.pinv(P)).T @ abs(P).T
+    I_r_abs = get_operator_matrix_output(abs(residual) @ abs(np.linalg.pinv(P)).T)
+    B_vector = I_r_abs @ abs(P).T
     assert (abs(errs) <= B_vector).all()
 
     # norm bound

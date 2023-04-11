@@ -314,7 +314,7 @@
         \end{algorithmic}
 
         \vspace{0.5em} 
-        \textbf{Note}: CumTrapz($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$) computes cumulative integral $\int_{0}^x y(x)\mathrm{d}x$ at discrete points ${x_k}_{k=1}^K$ using trapezoidal rule.\\
+        \textbf{Note}: CumTrapz($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$) computes cumulative integral $\int_{0}^x y(x)\mathrm{d}x$ at discrete points $\{x_k\}_{k=1}^K$ using trapezoidal rule.\\
         \textbf{Note}: Interpolate($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$, $\{x_\ell\}_{\ell=1}^L$) computes interpolant to a function with given discrete data points $\{(x_k, y_k)\}_{k=1}^K$ evaluated at $\{x_\ell\}_{\ell=1}^L$.
     \end{algorithm}
 
@@ -379,7 +379,7 @@
     {
         \small
         \begin{equation}\label{eq:system-component-bound}
-            \pmb{\Err}^{\abs}(t) \preceq \pmb{\Bound}(t) := P^{\abs} (P^{-1})^{\abs} \ \pmb{\I}\left[\vect{r}^{\abs}\right](t),
+            \pmb{\Err}^{\abs}(t) \preceq \pmb{\Bound}(t) := P^{\abs} \pmb{\I}\left[(P^{-1})^{\abs} \ \vect{r}^{\abs}\right](t),
         \end{equation}
     }
     where superscript $\abs$ denotes taking elementwise absolute value and symbol $\preceq$ denotes elementwise inequality. In the meantime, a \textit{norm bound} (scalar) $\Bound(t)$ also exists
@@ -406,7 +406,7 @@
                 \State $\vect{I}_k \gets$ construct operator block using Eq. \ref{eq:operator-block} 
             \EndFor
             \State $\pmb{\I} \gets$ diag($\vect{I}_1$, $\vect{I}_2$,  \dots)
-            \State $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L} \gets \{P^{\abs} (P^{-1})^{\abs} \pmb{\I}[\vect{r}^{\abs}](t_\ell)\}_{\ell=1}^{L}$
+            \State $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L} \gets \{P^{\abs} \pmb{\I}\big[(P^{-1})^{\abs} \vect{r}^{\abs}\big](t_\ell)\}_{\ell=1}^{L}$
             \State $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L} \gets \{\mathrm{cond}(P)\left\|\pmb{\I}\big[\|\vect{r}\|\vect{1}\big](t_\ell)\right\|\}_{\ell=1}^{L}$
             \State \textbf{return} $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$, $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L}$
         \end{algorithmic}

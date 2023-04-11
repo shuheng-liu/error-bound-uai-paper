@@ -129,7 +129,7 @@ We then use these properties to prove relevant statements regarding Alg. \ref{al
 \subsection{PROOF OF TIGHT AND LOOSE BOUNDS}
 This section proves inequality \ref{eq:single-linear-ode-tight-and-loose} in the main paper, namely,
 \begin{equation}\label{eq:tight-bound-to-prove}
-    |\Err(t)| \leq \Bound_{tight}(t) :=\left(\I_{\Re{-\lambda_1}}\circ\dots\circ\I_{\Re{-\lambda_n}}\right)r(t)
+    |\Err(t)| \leq \Bound_{tight}(t) :=\left(\I_{\Re{\lambda_1}}\circ\dots\circ\I_{\Re{\lambda_n}}\right)r(t)
 \end{equation}
 and, if $\Re{\lambda_j} \leq 0$ for all $\lambda_j$, 
 \begin{equation}\label{eq:loose-bound-to-prove}
@@ -231,7 +231,7 @@ which proves Eq. \ref{eq:loose-bound-to-prove}.
         \end{equation}
     \endgroup
 
-    Let $N_k = n_1+\dots + n_k$. For $j$-th Jordan block indexed by $N_{k-1} < l \leq N_k$, there is
+    Let $N_k = n_1+\dots + n_k$. For $k$-th Jordan block indexed by $N_{k-1} < l \leq N_k$, there is
     \begin{equation}
         \dt{}
         \begin{pmatrix}
@@ -254,11 +254,11 @@ which proves Eq. \ref{eq:loose-bound-to-prove}.
     \end{equation}
     which can be formulated as the following sequence of scalar equations, also known as \textit{Jordan chains}:
     \begin{alignat}{4}
-        &\dt{}\delta_{N_{k-1} + 1} &&+\lambda_k\delta_{N_{k-1} + 1} &&= q_{N_{k-1}+1} - \delta_{N_{k-1}+2}, \label{eq:jordan-chain-first}\\
-        &\dt{}\delta_{N_{k-1} + 2} &&+\lambda_k\delta_{N_{k-1} + 2} &&= q_{N_{k-1}+2} - \delta_{N_{k-1}+3}, \label{eq:jordan-chain-second}\\
+        &\dt{}\delta_{N_{k-1} + 1} &+&\lambda_k\delta_{N_{k-1} + 1} &=& q_{N_{k-1}+1} &-& \delta_{N_{k-1}+2}, \label{eq:jordan-chain-first}\\
+        &\dt{}\delta_{N_{k-1} + 2} &+&\lambda_k\delta_{N_{k-1} + 2} &=& q_{N_{k-1}+2} &-& \delta_{N_{k-1}+3}, \label{eq:jordan-chain-second}\\
         &&&& \vdots \nonumber\\
-        &\dt{}\delta_{N_k-1} &&+\lambda_k\delta_{N_k-1} &&= q_{N_k-1} - \delta_{N_k}, \label{eq:jordan-chain-second2last}\\
-        &\dt{}\delta_{N_k} && + \lambda_k\delta_{N_k} & &= q_{N_k}. \label{eq:jordan-chain-last}
+        &\dt{}\delta_{N_k-1} &+&\lambda_k\delta_{N_k-1} &=& q_{N_k-1} &-& \delta_{N_k}, \label{eq:jordan-chain-second2last}\\
+        &\dt{}\delta_{N_k} &+& \lambda_k\delta_{N_k} &=& q_{N_k}. \label{eq:jordan-chain-last}
     \end{alignat}
 
     The last equation (Eq. \ref{eq:jordan-chain-last}) of the Jordan chain can be used to bound $\delta_{N_k}$ by applying the inequality \ref{eq:operator-I-inequality}, 
@@ -293,13 +293,13 @@ which proves Eq. \ref{eq:loose-bound-to-prove}.
         \vdots & \vdots & \ddots & \vdots \\
         0 & 0 & \dots & \I_{-\Re{\lambda_k}}
     \end{pmatrix}$ is an $n_k \times n_k$ upper-triangular block.
-    Notice that $(AB)^{\abs} \preceq A^{\abs} B^{\abs}$ for any compatible matrix $A$ and $B$. Recall $\pmb{\delta}(t) = P^{-1}\pmb{\Err}(t)$ and $\pmb{q}(t) = P^{-1} \vect{r}(t)$, there is
+    Notice that $(AB)^{\abs} \preceq A^{\abs} B^{\abs}$ for any compatible matrices $A$ and $B$. Recall $\pmb{\delta}(t) = P^{-1}\pmb{\Err}(t)$ and $\pmb{q}(t) = P^{-1} \vect{r}(t)$, there is
     \begin{equation}
         \pmb{\Err}^{\abs} 
         \preceq P^{\abs}\pmb{\delta}^{\abs} 
         \preceq P^{\abs} \pmb{\I} \left[\vect{q}^{\abs} \right]
         \preceq P^{\abs} \pmb{\I} \left[(P^{-1})^{\abs} \vect{r}^{\abs}\right]
-        = P^{\abs} (P^{-1})^{\abs}  \pmb{\I} \left[\vect{r}^{\abs}\right]
+        % = P^{\abs} (P^{-1})^{\abs}  \pmb{\I} \left[\vect{r}^{\abs}\right]
     \end{equation}
 \subsection{Norm Bound}
     By Eq. \ref{eq:system-component-inequality-transformed}, we have $ \|\pmb{\delta}\| \leq \big\|\pmb{\I} [\|\vect{q}\| \vect{1}]\big\|$, where $\vect{1}$ is $n \times 1$ (constant) column vector whose components are all equal to 1.
