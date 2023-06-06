@@ -1,4 +1,4 @@
-\documentclass{uai2023}
+\documentclass[accepted]{uai2023}
 \usepackage[american]{babel}
 
 \usepackage[utf8]{inputenc}
@@ -22,6 +22,8 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{subfig}
+\usepackage{booktabs}
+\usepackage{tabularx}
 
 
 \newcommand{\vect}[1]{\mathbf{#1}}
@@ -52,9 +54,9 @@
 \setlength{\parindent}{0pt}
 % \setlength{\parskip}{1em}
 
-\author[1]{Shuheng Liu}
-\author[2]{Xiyue Huang}
-\author[3]{Pavlos Protopapas}
+\author[1]{\href{mailto:<shuheng_liu@g.harvard.edu>?Subject=Your UAI 2023 paper}{Shuheng Liu}{}}
+\author[2]{\href{mailto:<xh2554@columbia.edu>?Subject=Your UAI 2023 paper}{Xiyue Huang}{}}
+\author[3]{\href{mailto:<pavlos@seas.harvard.edu>?Subject=Your UAI 2023 paper}{Pavlos Protopapas}{}}
 % Add affiliations after the authors
 \affil[1, 3]{
     Institute for Applied Computational Science\\
@@ -161,13 +163,34 @@
     Notice that multiple bounds $\Bound$ exist for the same network solution $u$.
     For example, $|\Err(t)| \leq \Bound^{(1)}(t) \leq  \Bound^{(2)}(t) \leq \dots \leq B$ are bounds in decreasing order of tightness. Tighter bounds incur a higher computational cost, and looser bounds (such as constant $B$) are faster to compute.
 
+    A summary of the applicability, restraints, run-time complexity, and relative tightness of all proposed algorithms is listed in Table \ref{tab:alogrithm-overview}.
+
+    \begin{table*}[tbh]
+        \centering
+        \caption{\textbf{Overview of Proposed Algorithms.}\, The symbols in run-time analysis are defined and explained in detail in Sections \ref{section:error-bound-for-ode} and \ref{section:error-bound-for-pde}, with the exception of $K$, which is the number of steps used in each numerical integration.}
+        \label{tab:alogrithm-overview}
+        \small
+        \begin{tabularx}{\textwidth}{ccXcc}
+          \toprule % from booktabs package
+          \bfseries Algorithm & \bfseries Applicable to & \bfseries Restraint & \bfseries Run-Time & \bfseries Comment \\
+          \midrule % from booktabs package
+          Algorithm \ref{alg:single-linear-ode-constant-coeff-loose} & Linear ODE & Equation must be semi-stable & $O(L)$ & Looser than Alg \ref{alg:single-linear-ode-constant-coeff-tight}\\
+          Algorithm \ref{alg:single-linear-ode-constant-coeff-tight} & Linear ODE &  & $O(nL)$ & Tighter than Alg \ref{alg:single-linear-ode-constant-coeff-loose}\\
+          Algorithm \ref{alg:system-bound} & Linear ODE System &  & $O(n^3 L)$ & Norm and elementwise bound\\
+          Algorithm \ref{alg:nonlinear-iterative} & Nonlinear ODE & Nonlinear term has form $\varepsilon v^k$ & $O(JnL)$ & Returns both solution and bound \\
+          Algorithm \ref{alg:linear-first-order-pde-constant} & Linear 1st-Order PDE & Coefficient $c \neq 0$ over domain & $O(\text{\small mesh size})$ & Constant bound; Looser than Alg \ref{alg:linear-first-order-pde-general}\\
+          Algorithm \ref{alg:linear-first-order-pde-general} & Linear 1st-Order PDE & Numerically solvable characteristics & $O(KL)$ & Tigher than Alg \ref{alg:linear-first-order-pde-constant} if computable\\
+          \bottomrule % from booktabs package
+        \end{tabularx}
+    \end{table*}
+
 \section{LITERATURE REVIEW} \label{section:literature-review}
-    \citeauthor{hornik1989multilayer} showed that neural networks are universal function approximators. 
-    \citeauthor{lagaris1998artificial} first studied the application of neural networks in solving DEs.
-    The term \textit{physics-informed neural networks}, or PINNs, was first introduced by \citeauthor{raissi2019physics} to name neural networks that satisfy DEs while fitting observed data points. 
+    \cite{hornik1989multilayer} showed that neural networks are universal function approximators. 
+    \cite{lagaris1998artificial} first studied the application of neural networks in solving DEs.
+    The term \textit{physics-informed neural networks}, or PINNs, was first introduced by \cite{raissi2019physics} to name neural networks that satisfy DEs while fitting observed data points. 
     Although we train PINNs only to solve DEs without any observed data in this work, the error-bounding algorithms we propose work for any given neural network, regardless of the training process.
 
-    \citeauthor{flamant2020solving} and \citeauthor{DesaiShaan2021OTLo} showed that one main advantage of neural networks over traditional numerical methods, such as FDM and FEM, is that neural networks can potentially learn the structure of the solution space and give a bundle of solutions $u(\vect{x}; \Theta)$ for different equation setup and initial/boundary conditions parameterized by $\Theta$.
+    \cite{flamant2020solving} and \cite{DesaiShaan2021OTLo} showed that one main advantage of neural networks over traditional numerical methods, such as FDM and FEM, is that neural networks can potentially learn the structure of the solution space and give a bundle of solutions $u(\vect{x}; \Theta)$ for different equation setup and initial/boundary conditions parameterized by $\Theta$.
     For traditional methods, a new solution must be recomputed for any slight changes in equation setup or initial/boundary conditions.
 
     Some effort has been made to redefine the objective loss function. 
@@ -178,7 +201,7 @@
     There are also works that study the failure modes of PINNs and quantify the error of PINN solutions in recent years. 
     \cite{graf2021uncertainty} worked on quantifying the uncertainty of PINNs using the Bayesian framework.
     \cite{krishnapriyan2021characterizing} characterized possible failure modes of PINNs by studying the performance of PINNs on simple problems and analyzing their loss landscape. 
-    \citeauthor{krishnapriyan2021characterizing} also concluded that optimization difficulty is the essential cause of failure.
+    \cite{krishnapriyan2021characterizing} also concluded that optimization difficulty is the essential cause of failure.
 
     Our work uncovers the mathematical relationship between residual information and the error of PINNs on several classes of ODEs and PDEs. 
     We propose different algorithms for various classes of equations and experimentally validate these algorithms.
@@ -280,7 +303,11 @@
 
     Notice that the bounds of $\Err$ in Eq. \ref{eq:linear-error-inverse-master} can be estimated if the inverse operator $\L^{-1}$ is known. 
     Let Eq. \ref{eq:single-linear-ode-characteristic-polynomial-factorization} be the factorization of characteristic polynomial of $\L$.
-    Define operator $\I_{\lambda}$ as
+    Define operator $\I_{\lambda}$ as \footnote{
+        This paper assumes the network solution exactly satisfies the initial conditions as discussed in Section \ref{section:initial-and-boundary-conditions}. 
+        However, all our algorithms can be extended to cases where the network solution differs from the exact solution by some value. 
+        This is achieved by replacing $\I_\lambda \psi(t)$ with $\I_{\lambda, \delta} \psi(t) = \I_\lambda \psi(t) + \delta e^{\lambda t}$ in Eq. \ref{eq:integral-operator-definition}. 
+    }
     \begin{equation} \label{eq:integral-operator-definition}
         \I_\lambda \psi(t) := e^{{\lambda} t} \int_{0}^{t} e^{-{\lambda} \tau} \psi(\tau) \mathrm{d}\tau, \quad \forall \psi : I \to \mathbb{C}.
     \end{equation}
@@ -317,6 +344,12 @@
         \textbf{Note}: CumTrapz($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$) computes cumulative integral $\int_{0}^x y(x)\mathrm{d}x$ at discrete points $\{x_k\}_{k=1}^K$ using trapezoidal rule.\\
         \textbf{Note}: Interpolate($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$, $\{x_\ell\}_{\ell=1}^L$) computes interpolant to a function with given discrete data points $\{(x_k, y_k)\}_{k=1}^K$ evaluated at $\{x_\ell\}_{\ell=1}^L$.
     \end{algorithm}
+
+    Before moving on to the next section, we discuss the effect of numerical error in Alg. \ref{alg:single-linear-ode-constant-coeff-tight} and all pursuant algorithms which involve numerical integration.
+    Empirically, the error introduced by numerical integration in negligible for most cases.
+    To ensure the accuracy of the error bound, we recommend using a slightly modified trapezoidal rule that, instead of directly using the node value,  takes the maximum of the node and its two adjacent nodes.
+    This modification leads to a slighltly looser bound.
+    Yet, this influence is almost negligible in practice.
 
 \subsubsection{Single Linear ODE of the General Form}
    In general, the coefficients for $\L$ can be functions of $t$. Namely, $\L = \frac{\mathrm d^n}{\mathrm d t^n} +  \sum_{j=0}^{n-1}a_j(t)\frac{\mathrm d^j}{\mathrm d t^j}$.
@@ -414,10 +447,12 @@
 
 \subsection{NONLINEAR ODE}
     Nonlinear ODEs are hard to solve in general. 
-    In this work, we only deal with nonlinear ODEs with a single nonlinear term of the form $\varepsilon v^k(t)$, where $\varepsilon \in \mathbb{R}$ is a small number. 
+    In this work, we only deal with nonlinear ODEs with a single nonlinear term of the form $\varepsilon v^k(t)$, where $\varepsilon \in \mathbb{R}$ is a small number.
     Ideally, $|\varepsilon| \ll 1$. 
+    The exact requirement for $\epsilon$ is given in Section \ref{section:expansion-of-bounds}.
+    The value of $\varepsilon$ can vary within a certain range or be fixed.
     With the perturbation technique, we obtain a family of solutions $v(t;\varepsilon)$ parameterized by $\varepsilon$ at the cost of solving a (countable) collection of equations. 
-    As explained below in section \ref{section:perturbation-theory}, we train finitely many networks, each approximately solving an equation in the collection.
+    As explained below in Section \ref{section:perturbation-theory}, we train finitely many networks, each approximately solving an equation in the collection.
 
 \subsubsection{Perturbation Theory} \label{section:perturbation-theory}
     Consider the nonlinear ODE with nonlinear term $\varepsilon v^k(t)$,
@@ -479,7 +514,7 @@
     After obtaining $\left\{u_j(t)\right\}_{j=0}^{J}$, we can reconstruct the solution $u(t;\varepsilon) = \sum_{j=0}^{J} \varepsilon^j u_j(t)$ to the original nonlinear equation \ref{eq:nonlinear-ode-master} for varying $\varepsilon$.
     See Alg. \ref{alg:nonlinear-iterative} for details.
 
-\subsubsection{Expansion of Bounds}
+\subsubsection{Expansion of Bounds}\label{section:expansion-of-bounds}
     The absolute error $|\Err(t;\varepsilon)| = |u(t;\varepsilon) - v(t;\varepsilon)|$is given by 
     {
         \small
@@ -491,7 +526,7 @@
     }
     where $\Err_{j}(t) := u_j(t) - v_j(t)$ is the \textit{component error} between $u_j(t)$ and $v_j(t)$.
     Let $\Bound_{j}$ denote the \textit{bound component} such that $|\Err_{j}(t)| \leq \Bound_j(t)$.
-    Assuming $J$ is large and higher order terms $\left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|$ are negligible, there is 
+    Assuming $J$ is large and $\varepsilon$ is small such that higher order terms $\left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|$ are negligible, there is 
     {
         \small
         \begin{equation} \label{eq:nonlinear-bound-components}
@@ -780,12 +815,18 @@
         }\label{fig:pde-constant-bound}
     \end{figure}
 
-\section{Conclusion}
+\section{CONCLUSION AND FUTURE WORK}
     This paper proposes various error-bounding algorithms for any PINN solution to certain classes of ODEs and PDEs. 
     These algorithms only require the residual information $r(\cdot)$ and the equation structure $\mathcal{D} v = f$ as input.
-    With these algorithms, PINNs can be trained until the error falls below a specified tolerance threshold.
+    There are many real-world applications for which the exact solution $v(\cdot)$ is unknown or hard to compute.
+    However, the residual information $r(\cdot)$ is usually, if not always, readily available.
+    With our proposed algorithms, PINNs can be trained until the error is gauranteed to fall below a specified tolerance threshold.
     The mathematical relationship between residual and error bound also sheds light on optimizing PINN solutions for future studies.
 
+    The error-bounding algorithms proposed in this paper only apply to certain classes of ODEs and PDEs.
+    However, the insights of this paper can be beneficial to future work that extends to more general classes of ODEs and PDEs, especially nonlinear ones.
+    We also plan to apply these algorithms stochastic differential equations, where the error bound is a probabilistic tail bound.
+    
 \bibliography{references}
 
 
