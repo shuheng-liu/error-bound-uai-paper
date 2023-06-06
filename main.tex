@@ -294,7 +294,6 @@
             \State $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L} \gets \left\{\frac{C}{Z!}R_{\max}\, t_\ell^{Z}\right\}_{\ell=1}^{L}$
             \State \textbf{return} $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$
         \end{algorithmic}
-        \vspace{0.5em} 
         \textbf{Note}: Polynomial roots are solvable with \cite{jenkins1970three}
     \end{algorithm}
 
@@ -340,7 +339,6 @@
             \State \textbf{return} $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$ 
         \end{algorithmic}
 
-        \vspace{0.5em} 
         \textbf{Note}: CumTrapz($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$) computes cumulative integral $\int_{0}^x y(x)\mathrm{d}x$ at discrete points $\{x_k\}_{k=1}^K$ using trapezoidal rule.\\
         \textbf{Note}: Interpolate($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$, $\{x_\ell\}_{\ell=1}^L$) computes interpolant to a function with given discrete data points $\{(x_k, y_k)\}_{k=1}^K$ evaluated at $\{x_\ell\}_{\ell=1}^L$.
     \end{algorithm}
@@ -557,7 +555,6 @@
             \State $\left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L \gets \big\{\sum_{j=0}^{J}\varepsilon_\ell^j \Bound_j(t_\ell)\big\}_{\ell=1}^L $ 
             \State \textbf{return} $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L, \left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L$
         \end{algorithmic}
-        \vspace{0.5em}
 
         \textbf{Note} 1: $\Bound_0$ and $\Bound_{1:J}$ can be evaluated using either Alg. \ref{alg:single-linear-ode-constant-coeff-loose} or \ref{alg:single-linear-ode-constant-coeff-tight}.\\
         \textbf{Note} 2: $\Bound_\text{NL}$ can be estimated even though exact solutions $v_{0:j-1}$ are unknown. This is because $v_i \in [u_i - \Bound_i, u_i+\Bound_i]$ for all $i$, and $u_{0:j-1}$, $\Bound_{0:j-1}$ are known from previous iterations.
