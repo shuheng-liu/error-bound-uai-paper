@@ -104,33 +104,24 @@
 
 \section{Symbols and Notations} \label{section:symbols-and-notations}
     DEs in this paper are posed w.r.t. unknown function $v$,
-    {
-        \small
         \begin{equation*}
             \mathcal{D} v = f,
         \end{equation*}
-    }
     where $\mathcal{D}$ is a possibly nonlinear differential operator and $f$ is some forcing function.
     Unlike the exact solution $v(\cdot)$, a neural network solution $u(\cdot)$ does not strictly satisfy the equation.
     Instead, it incurs an additional residual term, $r$, which the network aims to minimize, to the equation, 
-    {
-        \small
         \begin{equation*}
             \mathcal{D} u = f + r.
         \end{equation*}
-    }
     The input to $v$, $u$, $f$, and $r$ is time $t$ for ODEs and spatial coordinates $(x, y)$ for PDEs.
     We limit our reasoning to 2-dimensional PDEs in this work.
     In cases with multiple unknown functions, we use vector notations $\vect{v}$, $\vect{u}$, and $\vect{r}$ instead of the scalar notations $v$, $u$, and $r$.
 
 % \subsection{LOSS FUNCTION}
     The loss function of the network solution is defined as the $L^2$ norm of residual $r$ over the domain of interest,
-    {
-        \small
         \begin{align}
             \Loss{}(u) &:= \frac{1}{|I|} \int_{I} \|r\|^2 \mathrm{d}I = \frac{1}{|I|} \int_{I} \|\mathcal{D} u - f\|^2 \mathrm{d}I,
         \end{align}
-    }
     where a spatial domain $\Omega$ is substituted for the temporal domain $I$ in the case of a PDE.
 
 \subsection{INITIAL AND BOUNDARY CONDITIONS}\label{section:initial-and-boundary-conditions}
@@ -143,20 +134,13 @@
 
 \subsection{ERROR AND ERROR BOUND}
     The error of a network solution $u$ is defined as 
-    {
-        \small
         \begin{equation}
             \Err := u - v.
         \end{equation}
-
-    }
     We are interested in \textit{bounding} the error with a scalar function $\Bound$ such that 
-    {
-        \small
         \begin{equation}
             \|\Err(t)\| \leq \Bound(t) \quad \text{or} \quad \|\Err(x, y)\| \leq \Bound(x, y)
         \end{equation}
-    }
     where $\|\Err\| = \|u - v\|$ is the \textit{absolute error}.
     If $\Bound$ takes on the same value $B \in \mathbb{R}^{+}$ over the domain, it can be replaced with a constant $B$.
 
@@ -169,17 +153,16 @@
         \centering
         \caption{\textbf{Overview of Proposed Algorithms.}\, The symbols in run-time analysis are defined and explained in detail in Sections \ref{section:error-bound-for-ode} and \ref{section:error-bound-for-pde}, with the exception of $K$, which is the number of steps used in each numerical integration.}
         \label{tab:alogrithm-overview}
-        \small
         \begin{tabularx}{\textwidth}{ccXcc}
           \toprule % from booktabs package
           \bfseries Algorithm & \bfseries Applicable to & \bfseries Restraint & \bfseries Run-Time & \bfseries Comment \\
           \midrule % from booktabs package
-          Algorithm \ref{alg:single-linear-ode-constant-coeff-loose} & Linear ODE & Equation must be semi-stable & $O(L)$ & Looser than Alg \ref{alg:single-linear-ode-constant-coeff-tight}\\
+          Algorithm \ref{alg:single-linear-ode-constant-coeff-loose} & Linear ODE & Semi-stable & $O(L)$ & Looser than Alg \ref{alg:single-linear-ode-constant-coeff-tight}\\
           Algorithm \ref{alg:single-linear-ode-constant-coeff-tight} & Linear ODE &  & $O(nL)$ & Tighter than Alg \ref{alg:single-linear-ode-constant-coeff-loose}\\
           Algorithm \ref{alg:system-bound} & Linear ODE System &  & $O(n^3 L)$ & Norm and elementwise bound\\
-          Algorithm \ref{alg:nonlinear-iterative} & Nonlinear ODE & Nonlinear term has form $\varepsilon v^k$ & $O(JnL)$ & Returns both solution and bound \\
-          Algorithm \ref{alg:linear-first-order-pde-constant} & Linear 1st-Order PDE & Coefficient $c \neq 0$ over domain & $O(\text{\small mesh size})$ & Constant bound; Looser than Alg \ref{alg:linear-first-order-pde-general}\\
-          Algorithm \ref{alg:linear-first-order-pde-general} & Linear 1st-Order PDE & Numerically solvable characteristics & $O(KL)$ & Tigher than Alg \ref{alg:linear-first-order-pde-constant} if computable\\
+          Algorithm \ref{alg:nonlinear-iterative} & Nonlinear ODE & Nonlinear term is $\varepsilon v^k$ & $O(JnL)$ & Returns both solution and bound \\
+          Algorithm \ref{alg:linear-first-order-pde-constant} & Linear 1st-Order PDE & Coeff. $c \neq 0$ over domain & $O(\text{mesh})$ & Constant bound; Looser than Alg \ref{alg:linear-first-order-pde-general}\\
+          Algorithm \ref{alg:linear-first-order-pde-general} & Linear 1st-Order PDE & Solvable characteristics & $O(KL)$ & Tigher than Alg \ref{alg:linear-first-order-pde-constant} if computable\\
           \bottomrule % from booktabs package
         \end{tabularx}
     \end{table*}
@@ -229,27 +212,18 @@
     Consider the linear ODE $\L v(t) = f(t)$, where $\L$ is a linear differential operator. 
     Its neural network solution $u$ satisfies $\L u(t) = f(t) + r(t)$. 
     Since error $\Err := u - v$, there is
-    {   
-        \small
         \begin{equation} \label{eq:linear-error-master}
             \L \Err(t) = r(t).
         \end{equation}
-    }
     With the assumption in Section \ref{section:initial-and-boundary-conditions} that $u$ satisfies the initial conditions at $t=0$, there is
-    {
-        \small
         \begin{equation} \label{eq:linear-error-initial-condition}
             \Err(0) = 0, \quad \dt{}{}\Err(0) = 0, \quad \dnt{2}{}\Err(0) = 0, \quad \dots 
         \end{equation}
-    }
     With initial conditions \ref{eq:linear-error-initial-condition} known, a unique inverse transform $\L^{-1}$to $\L$ exists. 
     Applying $\L^{-1}$ to Eq. \ref{eq:linear-error-master}, there is 
-    {
-        \small
         \begin{equation}\label{eq:linear-error-inverse-master}
             \Err(t) = \L^{-1} r(t).
         \end{equation}
-    }
     Hence, bounding the absolute error $\left|\Err\right|$ is equivalent to bounding $\left|\L^{-1} r\right|$. 
     Notice that only a) the equation structure $\L$ and b) the residual information $r$ are relevant to estimating the error bound. 
     All other factors, including parameters of the neural network $u$, forcing function $f$, and initial conditions, do not affect the error bound at all.
@@ -257,12 +231,9 @@
 \subsubsection{Single Linear ODE with Constant Coefficients}\label{section:single-linear-ode-with-constant-coefficients}
     Consider the case where $\L = \frac{\mathrm{d}^n}{\mathrm{d}t^n} + \sum_{j=0}^{n - 1} a_j \frac{\mathrm{d}^j}{\mathrm{d}t^j}$ consists of only constant coefficients $a_0, a_1, \dots, \in \mathbb{R}$.
     Its characteristic polynomial (defined below) can be factorized into
-    {
-        \small
         \begin{equation} \label{eq:single-linear-ode-characteristic-polynomial-factorization}
             \lambda^n + a_{n-1}\lambda^{n-1} + \dots + a_0 = \prod_{j=1}^{n}(\lambda - \lambda_j),
         \end{equation}
-    }
     where $\lambda_1, \dots, \lambda_n \in \mathbb{C}$ are the characteristic roots. 
 
     It can be shown that, for a semi-stable system ($\Re{\lambda_j} \leq 0$ for all $\lambda_j$), an error bound can be formulated as
@@ -273,7 +244,6 @@
     Knowing bound \ref{eq:linear-ode-const-loose-bound} is sufficient to qualitatively estimate the error for applications where only the order of error is concerned. See Alg. \ref{alg:single-linear-ode-constant-coeff-loose} for reference.
 
     \begin{algorithm}
-        \small
         \caption{Loose Error Bound Estimation for Linear ODE with Constant Coefficients\quad (Requires Semi-Stability)}\label{alg:single-linear-ode-constant-coeff-loose}
         \textbf{Input:} Coefficients $\left\{a_j\right\}_{j=0}^{n-1}$ for operator $\L$, residual information $r(\cdot)$, domain of interest $I = [0, T]$, and a sequence of time points $\left\{t_\ell\right\}_{\ell=1}^{L}$ where error bound is to be evaluated\\
         \textbf{Output:} Error bound at given time points $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$
@@ -294,7 +264,7 @@
             \State $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L} \gets \left\{\frac{C}{Z!}R_{\max}\, t_\ell^{Z}\right\}_{\ell=1}^{L}$
             \State \textbf{return} $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$
         \end{algorithmic}
-        \textbf{Note}: Polynomial roots are solvable with \cite{jenkins1970three}
+        \textbf{Note}: \cite{jenkins1970three} solves polynomial roots.
     \end{algorithm}
 
     An issue with Eq. \ref{eq:linear-ode-const-loose-bound} and Alg. \ref{alg:single-linear-ode-constant-coeff-loose} is that they assume $\Re{\lambda_j} \leq 0$ for all characteristic roots $\lambda_j$. 
@@ -322,7 +292,6 @@
     Based on Eq. \ref{eq:single-linear-ode-inverse-operator-inequality}, we propose Alg. \ref{alg:single-linear-ode-constant-coeff-tight}, which computes $\Bound_{tight}$ by repeatedly evaluating integrals in \ref{eq:integral-operator-definition} using the cumulative trapezoidal rule.
 
     \begin{algorithm}
-        \small
         \caption{Tighter Error Bound Estimation for Linear ODE with Constant Coefficients\quad  (Stable and Unstable)}\label{alg:single-linear-ode-constant-coeff-tight}
         \textbf{Input \& Output:} Same as Alg. \ref{alg:single-linear-ode-constant-coeff-loose}
         \begin{algorithmic}
@@ -332,15 +301,15 @@
             \State $\left\{t_k\right\}_{k=0}^{K} \gets$ linspace($0$, $T$, \normalfont{sufficient steps})
             \State $\left\{\Bound(t_k)\right\}_{k=0}^{K} \gets \left\{|r(t_k)|\right\}_{k=0}^{K}$
             \For{$j \gets 1 \dots n$}
-                \State integral$_{k=0}^{K} \gets$ CumTrapz($\left\{e^{-\lambda_j t_{k}} \Bound(t_k)\right\}_{k=0}^{K}$, $\left\{t_k\right\}_{k=0}^{K}$) 
-                \State $\left\{\Bound(t_k)\right\}_{k=0}^{K} \gets \left\{e^{\lambda_j t_{k}}\cdot \text{integral}_k \right\}_{k=0}^{K}$ 
+                \State intgr$_{k=0}^{K} \gets$ CumTrap($\left\{e^{-\lambda_j t_{k}} \Bound(t_k)\right\}_{k=0}^{K}$, $\left\{t_k\right\}_{k=0}^{K}$) 
+                \State $\left\{\Bound(t_k)\right\}_{k=0}^{K} \gets \left\{e^{\lambda_j t_{k}}\cdot \text{intgr}_k \right\}_{k=0}^{K}$ 
             \EndFor
-            \State $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L} \gets $ Interpolate($\left\{\Bound(t_k)\right\}_{k=0}^{K}$, $\left\{t_k\right\}_{k=0}^{K}$, $\left\{t_\ell\right\}_{\ell=0}^{L}$) 
+            \State $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L} \gets $ Interp($\left\{\Bound(t_k)\right\}_{k=0}^{K}$, $\left\{t_k\right\}_{k=0}^{K}$, $\left\{t_\ell\right\}_{\ell=0}^{L}$) 
             \State \textbf{return} $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$ 
         \end{algorithmic}
 
-        \textbf{Note}: CumTrapz($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$) computes cumulative integral $\int_{0}^x y(x)\mathrm{d}x$ at discrete points $\{x_k\}_{k=1}^K$ using trapezoidal rule.\\
-        \textbf{Note}: Interpolate($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$, $\{x_\ell\}_{\ell=1}^L$) computes interpolant to a function with given discrete data points $\{(x_k, y_k)\}_{k=1}^K$ evaluated at $\{x_\ell\}_{\ell=1}^L$.
+        \textbf{Note}: CumTrap($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$) computes cumulative integral $\int_{0}^x y(x)\mathrm{d}x$ at discrete points $\{x_k\}_{k=1}^K$ using trapezoidal rule.\\
+        \textbf{Note}: Interp($\{y_k\}_{k=1}^K$, $\{x_k\}_{k=1}^K$, $\{x_\ell\}_{\ell=1}^L$) computes interpolant to a function with given discrete data points $\{(x_k, y_k)\}_{k=1}^K$ evaluated at $\{x_\ell\}_{\ell=1}^L$.
     \end{algorithm}
 
     Before moving on to the next section, we discuss the effect of numerical error in Alg. \ref{alg:single-linear-ode-constant-coeff-tight} and all pursuant algorithms which involve numerical integration.
@@ -352,27 +321,19 @@
 \subsubsection{Single Linear ODE of the General Form}
    In general, the coefficients for $\L$ can be functions of $t$. Namely, $\L = \frac{\mathrm d^n}{\mathrm d t^n} +  \sum_{j=0}^{n-1}a_j(t)\frac{\mathrm d^j}{\mathrm d t^j}$.
    Similar to Eq. \ref{eq:single-linear-ode-characteristic-polynomial-factorization}, $\L$ have characteristic roots $\{\lambda_{j}(t)\}_{j=1}^{n}$ as functions of $t$,
-    {
-        \small
         \begin{equation*} \label{eq:functional-factorization}
             \lambda^n + a_{n-1}(t)\lambda^{n-1} + \dots + a_0(t) = \prod_{j=1}^{n}(\lambda - \lambda_j(t)).
         \end{equation*}
-    }
     We can replace constant $\lambda_j$ with functions $\lambda_j(t)$ in Eq. \ref{eq:integral-operator-definition} and compute bound $\Bound_{tight}$ as in Eq. \ref{eq:single-linear-ode-inverse-operator-inequality}.
     However, the factorization in Eq. \ref{eq:functional-factorization} is hard to implement in practice except for the first-order case  where $\L v = \frac{\mathrm{d}v}{\mathrm{d}t} + a_0(t)v$. 
     Cases of second order and higher are out of the scope of this paper.
 
 \subsubsection{System of Linear ODEs with Constant Coefficients} \label{section:system-of-linear-odes-with-constant-coefficients}
     Consider a system of linear ODEs with constant coefficients 
-    {
-        \small
         \begin{equation}\label{eq:linear-system-master}
             \frac{\mathrm{d}}{\mathrm{d}t}\vect{v} + A\vect{v} = \vect{f}(t)
         \end{equation}
-    }
     where $\vect{v}$ and $\vect{f}$ are $\mathbb{R}^n$ vectors and $A$ is a $n\times n$ matrix. Denote the Jordan canonical form of $A$ as,
-    {
-        \smaller
         \begingroup 
         \setlength\arraycolsep{1pt}
         \begin{equation}\label{eq:jordan-definition}
@@ -390,10 +351,7 @@
             \end{pmatrix}.
         \end{equation}
         \endgroup
-    }
     Let $n_k$ be the size of Jordan block $J_k$, we construct an operator matrix $\pmb{\I} = \text{diag}(\vect{I}_1, \vect{I}_2, \dots)$, where 
-    {
-        \smaller
         \begingroup 
         \setlength\arraycolsep{1pt}
         \begin{equation}\label{eq:operator-block}
@@ -405,26 +363,18 @@
             \end{pmatrix}.
         \end{equation}
         \endgroup
-    }
     An \textit{elementwise bound} (vector) $\pmb{\Bound}(t)$ can be formulated as 
-    {
-        \small
         \begin{equation}\label{eq:system-component-bound}
             \pmb{\Err}^{\abs}(t) \preceq \pmb{\Bound}(t) := P^{\abs} \pmb{\I}\left[(P^{-1})^{\abs} \ \vect{r}^{\abs}\right](t),
         \end{equation}
-    }
     where superscript $\abs$ denotes taking elementwise absolute value and symbol $\preceq$ denotes elementwise inequality. In the meantime, a \textit{norm bound} (scalar) $\Bound(t)$ also exists
-    {
-        \small
         \begin{equation}\label{eq:system-norm-bound}
             \left\|\pmb{\Err}(t)\right\| \leq \Bound(t) := \mathrm{cond}(P)\left\|\pmb{\I}\big[\|\vect{r}\|\vect{1}\big](t)\right\|
         \end{equation}
-    }
     where $\mathrm{cond}(P)$ is the conditional number of $P$ w.r.t. induced matrix norm and $\vect{1}$ is an $n\times 1$ column vector of $1$s. Proof of Eq. \ref{eq:system-component-bound} and Eq. \ref{eq:system-norm-bound} can be found in in supplementary material.
     See Alg. \ref{alg:system-bound} for implementation.
 
     \begin{algorithm}
-        \small
         \caption{ODE System Bound (norm and elementwise)}\label{alg:system-bound}
         \textbf{Input:} Coefficient matrix $A \in \mathbb{R}^{n\times n}$, residual vector $\vect{r}(t)$, and a sequence of points $\left\{t_\ell\right\}_{\ell=1}^{L}$ where error is to be bounded\\
         \textbf{Output:} Norm bound (scalar) $\left\{\Bound(t_\ell)\right\}_{\ell=1}^{L}$ and componentwise bound (vector) $\left\{\pmb{\Bound}(t_\ell)\right\}_{\ell=1}^{L}$ at given time points
@@ -454,35 +404,24 @@
 
 \subsubsection{Perturbation Theory} \label{section:perturbation-theory}
     Consider the nonlinear ODE with nonlinear term $\varepsilon v^k(t)$,
-    {
-        \small
         \begin{equation} \label{eq:nonlinear-ode-master}
             \L v(t) + \varepsilon v^k(t) = f(t),
         \end{equation}
-    }
     where $\L$ is a linear differential operator discussed in \ref{section:error-bound-for-linear-odes} and initial conditions are specified for the system at time $t=0$. 
     Notice that each $\varepsilon \in \mathbb{R}$ corresponds to a solution $v(t; \varepsilon)$. 
     We expand the solution $v(t; \varepsilon)$ in terms of $\varepsilon$
-    {   
-        \small
         \begin{equation} \label{eq:nonlinear-solution-expansion}
             v(t; \varepsilon) = \sum_{j=0}^{\infty} \varepsilon^j v_j(t) = v_0(t) + \varepsilon v_1(t) + \dots
         \end{equation}
-    }
     Only $v_0(t)$ is subject to the original initial conditions at $t=0$, while other components, $v_1$, $v_2$, \dots, have initial conditions of $0$ at $t=0$.
-    Substituting Eq. \ref{eq:nonlinear-solution-expansion} into Eq. \ref{eq:nonlinear-ode-master}, there is
-    {
-        \small
+    Substituting Eq. \ref{eq:nonlinear-solution-expansion} into Eq. \ref{eq:nonlinear-ode-master},
         \begin{gather}
             \L \sum_{j=0}^{\infty} \varepsilon^j v_j + \varepsilon \left(\sum_{j=0}^{\infty} \varepsilon^j v_j\right)^k = f \\
             % \sum_{j=0}^{\infty} \varepsilon^j \L v_j + \varepsilon \left(\sum_{j=0}^{\infty} \varepsilon^j v_j\right)^k = f \\
             \sum_{j=0}^{\infty} \varepsilon^j \L v_j + \sum_{j=0}^{\infty} \varepsilon^{j+1} \sum_{\substack{j_1+\dots+j_k = j\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k} = f \\[-0.5em]
-            \L v_0 + \sum_{j=1}^{\infty} \varepsilon^j \Bigg(\L v_j + \sum_{\substack{j_1+\dots+j_k = j - 1\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k}\Bigg)= f \label{eq:nonlinear-equation-expansion} 
+            \L v_0 + \sum_{j=1}^{\infty} \varepsilon^j \Bigg(\L v_j + \sum_{\substack{j_1+\dots+j_k = j - 1\\j_1, \dots, j_k \geq 0}}v_{j_1}\dots v_{j_k}\Bigg)= f \label{eq:nonlinear-equation-expansion}.
         \end{gather}
-    }
     In order for Eq. \ref{eq:nonlinear-equation-expansion} to hold true for all $\varepsilon$, the coefficients for each $\varepsilon^j$ must match on both sides of Eq. \ref{eq:nonlinear-equation-expansion}. Hence,
-    {
-        \small
         \begin{alignat}{6}
             &\L v_0 &&= f \label{eq:expansion-epsilon-0}\\
             &\L v_1 + v_0^k &&= 0 \label{eq:expansion-epsilon-1}\\
@@ -490,7 +429,6 @@
             &\L v_3 + \frac{k(k-1)}{2} v_0^{k-2}v_1^2 + k v_0^{k-1}v_2 &&= 0 \label{eq:expansion-epsilon-3} \\[-1em]
             &\vdots &&\phantom{=}\,\,\,\,\vdots\nonumber
         \end{alignat}
-    }
 
     For $\varepsilon = 0$, Eq. \ref{eq:nonlinear-solution-expansion} is reduced to $v_0(t)$, which solves the linear problem $\L v=f$. 
 
@@ -514,28 +452,21 @@
 
 \subsubsection{Expansion of Bounds}\label{section:expansion-of-bounds}
     The absolute error $|\Err(t;\varepsilon)| = |u(t;\varepsilon) - v(t;\varepsilon)|$is given by 
-    {
-        \small
         \begin{align}
             |\Err(t; \varepsilon)| %&= \big|u(t; \varepsilon) - v(t; \varepsilon)\big| \nonumber \\[-0.25em]
             &= \left|\sum_{j=0}^{J} \varepsilon^{j} \Big(u_j(t) - v_j(t)\Big) - \sum_{j=J+1}^{\infty} \varepsilon^j v_j(t)\right| \nonumber \\[-0.5em]
             &\leq \sum_{j=0}^{J} \Big|\Err_{j}(t)\Big||\varepsilon|^j + \left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right| 
         \end{align}
-    }
     where $\Err_{j}(t) := u_j(t) - v_j(t)$ is the \textit{component error} between $u_j(t)$ and $v_j(t)$.
     Let $\Bound_{j}$ denote the \textit{bound component} such that $|\Err_{j}(t)| \leq \Bound_j(t)$.
     Assuming $J$ is large and $\varepsilon$ is small such that higher order terms $\left|\sum_{j=J+1}^{\infty}\varepsilon^j v_j(t)\right|$ are negligible, there is 
-    {
-        \small
         \begin{equation} \label{eq:nonlinear-bound-components}
             \Big|\Err(t; \varepsilon)\Big| \leq \Bound(t; \varepsilon) := \sum_{j=0}^{J} \Bound_j(t)\,|\varepsilon|^j 
         \end{equation}
-    }
     where each bound component $\Bound_j$ can be evaluated using the techinque in Section \ref{section:error-bound-for-linear-odes}. 
     See Alg. \ref{alg:nonlinear-iterative} for details.
 
     \begin{algorithm}
-        \small
         \caption{Iterative Method for Solution and Error Bound of Nonlinear ODE \ref{eq:nonlinear-ode-master}} \label{alg:nonlinear-iterative}
         \textbf{Input:} Linear operator $\L$, nonlinear degree $k$, domain $I=[0, T]$, highest order $J$ for expansion, and a sequence $\left\{(t_\ell, \varepsilon_\ell)\right\}_{\ell=1}^{L}$ where solution $u(t; \varepsilon)$ and error bound $\Bound(t; \varepsilon)$ are to be evaluated \\
         \textbf{Output:} Solution $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^{L}$ and error bound $\left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^{L}$ 
@@ -543,91 +474,72 @@
             \Require $t_\ell \in I$, and $|\varepsilon_\ell|$ to be small (ideally $|\varepsilon_\ell| \ll 1$)
             \Ensure $\Err(t_\ell; \varepsilon_\ell) \leq \Bound(t_\ell; \varepsilon_\ell)$ 
 
-            \State $u_0, r_0, \gets$ network solution, residual of $\L u_0 = f$
+            \State $u_0, r_0, \gets$ net solution, residual of $\L u_0 = f$
             \State $\left\{\Bound_{0}(t_\ell)\right\}_{\ell=1}^L \gets$ bound of $\left|\L^{-1}r_0\right|$ at $\left\{t_\ell\right\}_{\ell=1}^L$
             \For{$j \gets 1 \dots J$} 
-                \State Define macro $\text{NL}_j[\phi]$ as $\sum_{\substack{j_1 + \dots + j_k = j-1\\ j_1, \dots, j_k \geq 0}} \phi_{j_1} \dots \phi_{j_k}$
-                \State $u_j, r_j \gets$ network solution, residual of $\L u_j + \text{NL}_j[u] = 0$
+                \State Macro $\text{NL}_j[\phi] \gets \sum_{\substack{j_1 + \dots + j_k = j-1\\ j_1, \dots, j_k \geq 0}} \phi_{j_1} \dots \phi_{j_k}$
+                \State $u_j, r_j \gets$ net solution, residual of $\L u_j + \text{NL}_j[u] = 0$
                 \State $\Bound_{\text{NL}} \gets \text{upper bound of }|\text{NL}_j[u] - \text{NL}_j[v]|$
-                \State $\left\{\Bound_{j}(t_\ell)\right\}_{\ell=1}^L \gets$  bound of $|\L^{-1}r_j|$+$|\L^{-1}\Bound_{\text{NL}}|$ at $\left\{t_\ell\right\}_{\ell=1}^L$
+                \State $\left\{\Bound_{j}(t_\ell)\right\}_{\ell=1}^L \gets$  bound of $|\L^{-1}r_j|$+$|\L^{-1}\Bound_{\text{NL}}|$ 
             \EndFor
             \State $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L \gets \big\{\sum_{j=0}^{J}\varepsilon_\ell^j u_j(t_\ell)\big\}_{\ell=1}^L $ 
             \State $\left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L \gets \big\{\sum_{j=0}^{J}\varepsilon_\ell^j \Bound_j(t_\ell)\big\}_{\ell=1}^L $ 
             \State \textbf{return} $\left\{u(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L, \left\{\Bound(t_\ell; \varepsilon_\ell)\right\}_{\ell=1}^L$
         \end{algorithmic}
 
-        \textbf{Note} 1: $\Bound_0$ and $\Bound_{1:J}$ can be evaluated using either Alg. \ref{alg:single-linear-ode-constant-coeff-loose} or \ref{alg:single-linear-ode-constant-coeff-tight}.\\
+        \textbf{Note} 1: $\Bound_0$ and $\Bound_{1:J}$ can be evaluated using Alg. \ref{alg:single-linear-ode-constant-coeff-loose} or \ref{alg:single-linear-ode-constant-coeff-tight}.\\
         \textbf{Note} 2: $\Bound_\text{NL}$ can be estimated even though exact solutions $v_{0:j-1}$ are unknown. This is because $v_i \in [u_i - \Bound_i, u_i+\Bound_i]$ for all $i$, and $u_{0:j-1}$, $\Bound_{0:j-1}$ are known from previous iterations.
     \end{algorithm}
 
 \section{ERROR BOUND FOR PDE} \label{section:error-bound-for-pde}
     This section considers first-order linear PDEs defined on a 2-dimensional spatial domain $\Omega$,\footnote{Similar techniques can be used for other classes of PDEs and higher dimensions where the method of characteristics applies.} 
     % Consider the first-order linear PDE,
-    { 
-        \small
         \begin{equation}\label{eq:pde-master}
             a(x, y) \px{v} + b(x, y) \py{v} + c(x, y)v = f(x, y)
         \end{equation}
-    }
     with Dirichlet boundary constraints defined on $\Gamma \subset \partial \Omega$,
-    {
-        \small
         \begin{equation}\label{eq:pde-bc-master}
             v\big|_{(x, y) \in \Gamma} = g(x, y).
         \end{equation}
-    }
 
     We partition the domain into infinitely many characteristic curves $\mathcal{C}$, each passing through a point $(x_0, y_0) \in \Gamma$. The resulting curve is a parameterized integral curve 
-    {
-        \small
         \begin{equation*} 
             \mathcal{C}: \begin{cases*}
                 x'(s) = a(x, y) \\
                 y'(s) = b(x, y) 
             \end{cases*} 
-            \quad
+            \,
             \text{where}
-            \,\,
+            \,
             (\cdot)' = \ds{}
-            \quad
+            \,\,
             \text{and} 
-            \quad
+            \,\,
             \begin{aligned}
                 x(0) &= x_0 \\
                 y(0) &= y_0.
             \end{aligned}
         \end{equation*}
-    }
     % Note that the system \ref{eq:parameter-eq-differential} can be nonlinear but needs not always be solved for a loose error bound to be evaluated. 
     % Still, knowing the exact characteristic curves $\mathcal{C}$ leads to a tighter bound.
     For any $(x(s), y(s))$ on $\mathcal{C}$, functions $(v, a, b, c, f)$ can be viewed as univariate functions of $s$. By chain rule, there is
-    {
-        \small
         \begin{equation*}
             a(x, y)\px{v} + b(x, y)\py{v} = x'(s)\px{v}  + y'(s)\py{v} = v'(s).
         \end{equation*}
-    }
     Hence, Eq. \ref{eq:pde-master} is reformulated as an ODE along curve $\mathcal{C}$,
-    {
-        \small
         \begin{equation}
             v'(s) + c(s) v(s) = f(s) \quad \text{s.t. } v(0) = g(x_0, y_0),
         \end{equation}
-    }
     where $v(s)$, $c(s)$, and $f(s)$ are shorthand notations for $v(x(s),y(s))$, $c(x(s),y(s))$, and $f(x(s),y(s))$, respectively.
 
     In particular, if $c(x, y) \neq 0$ for all $(x, y) \in \Omega$, both sides of Eq. \ref{eq:pde-master} can be divided by $c(x, y)$, resulting in a residual of $r(x, y)/c(x, y)$ where $r(x, y)$ is the residual of the original problem. 
     By Eq. \ref{eq:linear-ode-const-loose-bound}, a constant error bound on $\mathcal{C}$ is $|\Err(s)| \leq \max_{s}\left|r(s)/c(s)\right|$. 
     Hence, a (loose) constant error bound $B$ (see Alg. \ref{alg:linear-first-order-pde-constant}) over the entire domain $\Omega$ is
-    {
-        \small
         \begin{equation}
             |\Err(x, y)| \leq B :=\max_{(x, y)\in \Omega}\left|\frac{r(x, y)}{c(x, y)}\right|.
         \end{equation}
-    }
 
     \begin{algorithm}
-        \small
         \caption{Constant Err Bound for Linear 1st-Order PDE}\label{alg:linear-first-order-pde-constant}
         \textbf{Input:} Coefficient $c(x, y)$ in Eq. \ref{eq:pde-master}, residual information $r(x, y)$ and domain of interest $\Omega$\\
         \textbf{Output:} A constant error bound $B \in \mathbb{R}^+$
@@ -644,17 +556,16 @@
     Independent of the assumption $c(x, y)\neq 0$, in scenarios where the curve $\mathcal{C}$ passing through any $(x, y)$ can be computed, the error can be computed using Alg. \ref{alg:linear-first-order-pde-general}.
 
     \begin{algorithm}
-        \small
         \caption{General Err Bound for Linear 1st-Order PDE}\label{alg:linear-first-order-pde-general}
         \textbf{Input:} Coefficients $a(x, y)$, $b(x, y)$, $c(x, y)$ in Eq. \ref{eq:pde-master}, residual information $r(x, y)$, domain of interest $\Omega$, Dirichlet boundary $\Gamma\subset \partial \Omega$, and a sequence of points $\left\{(x_\ell, y_\ell)\right\}_{\ell=1}^{L}$ where error is to be bounded\\
         \textbf{Output:} Error bound $\left\{\Bound(x_\ell, y_\ell)\right\}_{\ell=1}^{L}$ at given points
         \begin{algorithmic}
-            \Require Integral curve of the vector field $\big[a(x, y)\,\, b(x, y)\big]^T$ passing through any point $(x_\ell, y_\ell) \in \Omega$ is solvable
+            \Require Integral curve of vector field $\big[a(x, y)\, b(x, y)\big]^T$ passing through any point $(x_\ell, y_\ell) \in \Omega$ is solvable
             \Ensure $|\Err(x_\ell, y_\ell)| \leq \Bound(x_\ell, y_\ell)$ for all $\ell$
 
-            \State $\mathcal{C}_{\text{gen}} \gets $ general solution (integral curves) to {\smaller $\begin{cases}x'(s) = a(x, y) \\ y'(s) = b(x, y)\end{cases}$}
+            \State $\mathcal{C}_{\text{g}} \gets $ general solution to {$\begin{cases}x'(s) = a(x, y) \\ y'(s) = b(x, y)\end{cases}$}
             \For{$\ell \gets 1 \dots L$}
-                \State $\mathcal{C}:(x(s), y(s))\gets$ instance of $\mathcal{C}_{\text{gen}}$ passing through $(x_\ell, y_\ell)$
+                \State $x(s), y(s)\gets$ instance of $\mathcal{C}_{\text{g}}$ passing through $(x_\ell, y_\ell)$
                 \State $s^* \gets$ solution to $x(s) = x_\ell,\, y(s)=y_\ell$
                 \State $\displaystyle \Bound(x_\ell, y_\ell) \gets e^{c(s^*)}\int_{0}^{s^*}r(x(s), y(s)) e^{-c(x(s),y(s))\,s}\mathrm{d}s$ 
             \EndFor
@@ -691,7 +602,7 @@
     \begin{figure}[!ht]
         \centering
         \includegraphics[width=\linewidth]{assets/2nd-order.pdf}
-        \caption{\small
+        \caption{
             Loose bound (Alg. \ref{alg:single-linear-ode-constant-coeff-loose}) and tight bound (Alg. \ref{alg:single-linear-ode-constant-coeff-tight}) for 3 second-order linear ODE with constant coefficients.
             Notice that the loose bound cannot be applied to the third equation since it has characteristic roots with positive real part.
         }\label{fig:2nd-order-bound} 
@@ -701,28 +612,25 @@
     \begingroup 
         \setlength\arraycolsep{1pt}
         In this subsection, we train $6$ networks to solve a $6$-dimensional linear system of ODEs with constant coefficients, namely, $\frac{\mathrm{d}}{\mathrm{d}t}\vect{v} + A\vect{v} = \vect{f}$. 
-        We pick $A = PJP^{-1}$ where {\small $J=\begin{pmatrix}J_1\\[-0.75ex]&J_2\\[-0.75ex]&&J_3\end{pmatrix}$} with {\small $J_1 = \begin{pmatrix} 4&1\\[-0.75ex]&4&1\\[-0.75ex]&&4\\[-0.5ex]\end{pmatrix}$, $J_2 = \begin{pmatrix} 3&1\\[-0.75ex]&3\\[-0.5ex]\end{pmatrix}$ }, $J_3=2$, and $P$ is a random orthogonal matrix.
+        We pick $A = PJP^{-1}$ where {$J=\begin{pmatrix}J_1\\[-0.75ex]&J_2\\[-0.75ex]&&J_3\end{pmatrix}$} with {$J_1 = \begin{pmatrix} 4&1\\[-0.75ex]&4&1\\[-0.75ex]&&4\\[-0.5ex]\end{pmatrix}$, $J_2 = \begin{pmatrix} 3&1\\[-0.75ex]&3\\[-0.5ex]\end{pmatrix}$ }, $J_3=2$, and $P$ is a random orthogonal matrix.
     \endgroup
 
-    We pick the initial conditions to be {\small $\vect{v}(0) = P(0\, 0\, 1\, 0\, 1\, 1)^{T}$} and the forcing function to be {\small $\vect{f}(t) = P(\cos t + 4 \sin t  + \ln(1+t),\, \frac{1}{1+t} + 4 \ln(1+t) + (t+1),\, 4t + 5,\, 2t + 3t^2 + e^t,\, 4 e^t,\, 2 \cos t - \sin t )^T$}, so that the manufactured exact solution is {\small $\vect{v}(t) = P ( \sin t,\, \ln(t + 1),\, t + 1,\, t^2,\, e^t,\, \cos t)^T$}.
+    We pick the initial conditions to be {$\vect{v}(0) = P(0\, 0\, 1\, 0\, 1\, 1)^{T}$} and the forcing function to be {$\vect{f}(t) = P(\cos t + 4 \sin t  + \ln(1+t),\, \frac{1}{1+t} + 4 \ln(1+t) + (t+1),\, 4t + 5,\, 2t + 3t^2 + e^t,\, 4 e^t,\, 2 \cos t - \sin t )^T$}, so that the manufactured exact solution is {$\vect{v}(t) = P ( \sin t,\, \ln(t + 1),\, t + 1,\, t^2,\, e^t,\, \cos t)^T$}.
 
-    After obtaining the residual information {\small $\vect{r}(t)=\frac{\mathrm d}{\mathrm d t}\vect{u}(t) + A\vect{u}(t) - \vect{f}(t)$}, we apply Alg. \ref{alg:system-bound} to obtain componentwise bound and norm bound of {\small $\pmb{\Err} = \vect{u}-\vect{v}$}. 
+    After obtaining the residual information {$\vect{r}(t)=\frac{\mathrm d}{\mathrm d t}\vect{u}(t) + A\vect{u}(t) - \vect{f}(t)$}, we apply Alg. \ref{alg:system-bound} to obtain componentwise bound and norm bound of {$\pmb{\Err} = \vect{u}-\vect{v}$}. 
     It is shown in Fig. \ref{fig:system-bound} that the bounds hold over the domain.
 
     \begin{figure}[!ht]
         \centering
         \includegraphics[width=\linewidth]{assets/system-bound.pdf}
-        \caption{\small \textit{Componentwise} bound (upper) and \textit{norm} bound (lower) for linear ODE system with constant coefficients}\label{fig:system-bound}
+        \caption{\textit{Componentwise} bound (upper) and \textit{norm} bound (lower) for linear ODE system with constant coefficients}\label{fig:system-bound}
     \end{figure}
 
 \subsection{NONLINEAR ODE -- DUFFING EQUATION} \label{section:experiment-duffing}
     In this subsection, we consider a Duffing oscillator, which is characterized by the following $2$nd order nonlinear ODE:
-    {
-        % \small
         \begin{equation}\label{eq:duffing}
             \frac{\mathrm{d}^2 v}{\mathrm{d}t^2} + 3 \frac{\mathrm{d}v}{\mathrm{d}t} + 2v +\varepsilon v^3 = \cos t ,
         \end{equation}
-    }
     under initial conditions $v(0) = 1$ and $v'(0) = 1$, where $\varepsilon$ controls the nonlinearity of the equation. 
     Using Alg. \ref{alg:nonlinear-iterative}, we solve the equation on $I=[0, 2]$ for linspaced $\varepsilon \in (-0.9, 0.9)$ using neural networks and bound the errors. 
     The input $J$ to Alg. \ref{alg:nonlinear-iterative} is chosen to be $6$. 
@@ -734,21 +642,20 @@
     \begin{figure}[!ht]
         \centering
         \includegraphics[width=\linewidth]{assets/duffing-solution.pdf}
-        \caption{\small RKF45 and Network Solutions (max-degree 0$\sim$6) to Duffing equation \ref{eq:duffing} for $\varepsilon \in (-0.9, 0.9)$}\label{fig:duffing-solution}
+        \caption{RKF45 and Network Solutions (max-degree 0$\sim$6) to Duffing equation \ref{eq:duffing} for $\varepsilon \in (-0.9, 0.9)$}\label{fig:duffing-solution}
     \end{figure}
     \begin{figure}[!ht]
         \centering
         \includegraphics[width=\linewidth]{assets/duffing-error.pdf}
-        \caption{\small True Error vs. error bound (max-degree 0$\sim$6) of neural network solution to Duffing Equation \ref{eq:duffing} for $\varepsilon \in (-0.9, 0.9)$}\label{fig:duffing-error}
+        \caption{True Error vs. error bound (max-degree 0$\sim$6) of neural network solution to Duffing Equation \ref{eq:duffing} for $\varepsilon \in (-0.9, 0.9)$}\label{fig:duffing-error}
     \end{figure}
 
 \subsection{LINEAR PDE SYSTEM WITH NONCONSTANT COEFFICIENTS } \label{section:experiment-attractor}
     \begin{figure}[!ht]
         \centering
-        \subfloat[\centering \small $\mathcal{C}: \begin{cases*} x' = -x - y \\ y' = x - y \end{cases*}$]{{\includegraphics[width=0.50\linewidth]{assets/characteristics.pdf}}}
-        \subfloat[\centering \small $\mathcal{C}: \begin{cases*} x' = x^2 + y^2 + 1 \\ y' = x^2 - y^2 + 2 \end{cases*}$]{{\includegraphics[width=0.49\linewidth]{assets/unsolvable-characteristics.pdf}}}
+        \subfloat[\centering $\mathcal{C}: \begin{cases*} x' = -x - y \\ y' = x - y \end{cases*}$]{{\includegraphics[width=0.50\linewidth]{assets/characteristics.pdf}}}
+        \subfloat[\centering $\mathcal{C}: \begin{cases*} x' = x^2 + y^2 + 1 \\ y' = x^2 - y^2 + 2 \end{cases*}$]{{\includegraphics[width=0.49\linewidth]{assets/unsolvable-characteristics.pdf}}}
         \caption{
-            \small
             Characteristics curves of Eq. \ref{eq:attractor} (left) and Eq. \ref{eq:hard-to-solve-characteristics} (right). 
             The red curves, with staring points $A$ to $P$, are selected for visualization of absolute error and error bound in Fig. \ref{fig:pde-error-bound}.
         }\label{fig:characteristics}
@@ -759,7 +666,6 @@
         \centering
         \includegraphics[width=\linewidth]{assets/pde-error-bound.pdf}
         \caption{
-            \small
             Absolute error and error bound on selected characteristic curves. 
             These characteristic curve start at points $A$ through $P$ as shown in Fig. \ref{fig:characteristics}a.
             The blue solid curves are absolute error along the characteristic curves and red dotted curves are corresponding bounds.
@@ -767,16 +673,13 @@
     \end{figure}
 
     We try to solve the following first-order linear PDE,
-    {
-        \small
         \begin{equation} \label{eq:attractor}
             (-x -y) \px{v} + (x - y) \py{v} + v = 3x - 2 y
         \end{equation}
-    }
     in spatial domain $\Omega=[-1, 1]^2$. 
     The boundary constraints are $v(x, \pm1) =2x\pm 3$ and $v(\pm 1, y) = 3y \pm 2$. 
     The manufactured solution is given by $v(x, y) = 2x + 3y$.
-    The characteristic curves are integral curves {\small $\mathcal{C}: \begin{cases*} x'(s) = -x - y \\[-0.25em] y'(s) = x - y \end{cases*}$}, or {\small $\mathcal{C}:\begin{cases*} x(s) = R_0 e^{-s} \cos (s+\theta_0)\\[-0.25em] y(s) = R_0 e^{-s} \sin(s + \theta_0) \end{cases*}$}, where $R_0 = \sqrt{x_0^2+y_0^2}$ and $\theta_0 = \mathrm{atan2}(y_0, x_0)$ are constants determined by the starting point $(x_0, y_0) \in \Gamma = \partial \Omega$.
+    The characteristic curves are integral curves {$\mathcal{C}: \begin{cases*} x'(s) = -x - y \\[-0.25em] y'(s) = x - y \end{cases*}$}, or {$\mathcal{C}:\begin{cases*} x(s) = R_0 e^{-s} \cos (s+\theta_0)\\[-0.25em] y(s) = R_0 e^{-s} \sin(s + \theta_0) \end{cases*}$}, where $R_0 = \sqrt{x_0^2+y_0^2}$ and $\theta_0 = \mathrm{atan2}(y_0, x_0)$ are constants determined by the starting point $(x_0, y_0) \in \Gamma = \partial \Omega$.
     See Figure \ref{fig:characteristics} for visualization.
 
     Since the analytical expression of the characteristic curves is known, Alg. \ref{alg:linear-first-order-pde-general} can be applied to evaluate the bound on each curve. 
@@ -785,16 +688,13 @@
     It can be seen that absolute error lies strictly within the bounds.
 \subsubsection{PDE Error Bound Evaluation Using Alg. \ref{alg:linear-first-order-pde-constant}}
     Consider the following PDE 
-    {
-        \small
         \begin{equation}\label{eq:hard-to-solve-characteristics}
             (x^2+y^2+1)\px{v} + (x^2-y^2+2)\py{v} + (3-2x)v = f
         \end{equation}
-    }
     over domain $\Omega = [-1, 1]^2$, where $f(x, y) = 6-4x$.
-    The boundary constraints are $v(-1, y) = 2$ and $v(x, 1) = 2$ and the manufactured solution is $v(x, y) = 2$.
+    The boundary constraints are $v(-1, y) = 2$ and $v(x, 1) = 2$, and the manufactured solution is $v(x, y) = 2$.
     
-    The characteristic curves {\small $\mathcal{C}: \begin{cases*} x'(s) = x^2+y^2+1 \\[-0.25em] y'(s) = x^2 - y^2 + 2 \end{cases*}$} are given by a nonlinear ODE, which is hard to solve analytically. 
+    The characteristic curves {$\mathcal{C}: \begin{cases*} x'(s) = x^2+y^2+1 \\[-0.25em] y'(s) = x^2 - y^2 + 2 \end{cases*}$} are given by a nonlinear ODE, which is hard to solve analytically. 
     (See Fig. \ref{fig:characteristics}b for visualization)
     Therefore, Alg. \ref{alg:linear-first-order-pde-general} cannot be applied to evaluate the error bound. 
 
@@ -807,7 +707,6 @@
         \centering
         \includegraphics[width=\linewidth]{assets/pde-constant-bound.pdf}
         \caption{
-            \small
             Constant bound $B$, computed using Alg. \ref{alg:linear-first-order-pde-constant}, and max absolute error over domain at different epochs of training.
         }\label{fig:pde-constant-bound}
     \end{figure}
@@ -825,6 +724,5 @@
     We also plan to apply these algorithms stochastic differential equations, where the error bound is a probabilistic tail bound.
     
 \bibliography{references}
-
 
 \end{document}
